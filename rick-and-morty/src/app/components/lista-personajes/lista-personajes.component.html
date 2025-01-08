@@ -1,28 +1,67 @@
 <div class="filter-container">
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="fill">
     <mat-label>Buscar por nombre</mat-label>
     <input matInput (keyup)="applyFilter($event)" placeholder="Rick, Morty..." #inputName>
   </mat-form-field>
 </div>
 
-<div class="card-container">
-  <mat-card *ngFor="let character of filteredCharacters" class="character-card">
-    <img mat-card-image [src]="character.image" alt="{{ character.name }}">
-    <mat-card-title>{{ character.name }}</mat-card-title>
-    <mat-card-subtitle>
-      {{ character.species }} - {{ character.status }}
-    </mat-card-subtitle>
-    <mat-card-content>
-      <p><strong>Género:</strong> {{ character.gender }}</p>
-      <p><strong>Tipo:</strong> {{ character.type || 'N/A' }}</p>
-      <p><strong>Creado:</strong> {{ character.created | date }}</p>
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-raised-button color="primary" (click)="verDetalles(character)">
-        Detalles
-      </button>
-      <button mat-button color="accent">Favorito</button>
-    </mat-card-actions>
-  </mat-card>
-</div>
+<table mat-table [dataSource]="filteredCharacters" class="mat-elevation-z8">
+
+  <!-- Imagen -->
+  <ng-container matColumnDef="image">
+    <th mat-header-cell *matHeaderCellDef> Imagen </th>
+    <td mat-cell *matCellDef="let character">
+      <img [src]="character.image" alt="{{ character.name }}" class="character-image">
+    </td>
+  </ng-container>
+
+  <!-- Nombre -->
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef> Nombre </th>
+    <td mat-cell *matCellDef="let character"> {{ character.name }} </td>
+  </ng-container>
+
+  <!-- Estado -->
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef> Estado </th>
+    <td mat-cell *matCellDef="let character"> {{ character.status }} </td>
+  </ng-container>
+
+  <!-- Especie -->
+  <ng-container matColumnDef="species">
+    <th mat-header-cell *matHeaderCellDef> Especie </th>
+    <td mat-cell *matCellDef="let character"> {{ character.species }} </td>
+  </ng-container>
+
+  <!-- Type -->
+  <ng-container matColumnDef="type">
+    <th mat-header-cell *matHeaderCellDef> Especie </th>
+    <td mat-cell *matCellDef="let character"> {{ character.type }} </td>
+  </ng-container>
+
+  <!-- Gender -->
+  <ng-container matColumnDef="gender">
+    <th mat-header-cell *matHeaderCellDef> Genero </th>
+    <td mat-cell *matCellDef="let character"> {{ character.gender }} </td>
+  </ng-container>
+
+  <!-- Created-->
+  <ng-container matColumnDef="created">
+    <th mat-header-cell *matHeaderCellDef> Creado </th>
+    <td mat-cell *matCellDef="let character"> {{ character.created | date}} </td>
+  </ng-container>
+
+    <!-- Detalles -->
+    <ng-container matColumnDef="detalle">
+      <th mat-header-cell *matHeaderCellDef> Detalles </th>
+      <td mat-cell *matCellDef="let character">
+        <button mat-button (click)="verDetalles(character)">Detalles</button>
+      </td>
+    </ng-container>
+
+  <!-- Fila Encabezado y Cuerpo -->
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+</table>
 

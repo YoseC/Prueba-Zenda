@@ -1,0 +1,9 @@
+.main-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.list-container, .details-container {
+  flex: 1;
+  margin: 10px;
+}

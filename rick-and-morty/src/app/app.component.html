@@ -1,4 +1,12 @@
 <app-header></app-header>
 
-<app-lista-personajes (characterSelected)="verDetalles($event)"></app-lista-personajes>
-<app-detalles-personajes [character]="selectedCharacter"></app-detalles-personajes>
+<div class="main-container">
+  <div class="list-container">
+    <lista-personajes (characterSelected)="verDetalles($event)"></lista-personajes>
+  </div>
+
+  <div class="details-container">
+    <detalles-personajes [character]="selectedCharacter"></detalles-personajes>
+  </div>
+</div>
+

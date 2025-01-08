@@ -1,21 +1,8 @@
-.character-card {
-  width: 300px;
-  margin: 20px;
-  display: inline-block;
+table {
+  width: 100%;
 }
 
-mat-card {
-  transition: transform 0.3s;
-}
-
-mat-card:hover {
-  transform: scale(1.05);
-}
-
-mat-card-title {
-  font-weight: bold;
-}
-
-.text-center {
-  text-align: center;
+.mat-mdc-form-field {
+  font-size: 14px;
+  width: 100%;
 }
