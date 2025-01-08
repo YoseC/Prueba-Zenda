@@ -1,1 +1,16 @@
-<p>lista-personajes works!</p>
+<mat-card *ngFor="let character of characters" class="character-card">
+  <img mat-card-image [src]="character.image" alt="{{ character.name }}">
+  <mat-card-title class="text-center"> {{ character.name }} </mat-card-title>
+  <mat-card-subtitle class="text-center">{{ character.species }} - {{ character.status }}</mat-card-subtitle>
+
+  <mat-card-content>
+    <p><strong>Género:</strong> {{ character.gender }}</p>
+    <p><strong>Creado:</strong> {{ character.created }}</p>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-raised-button color="primary">Detalles</button>
+    <button mat-button color="accent">Favorito</button>
+  </mat-card-actions>
+</mat-card>
+

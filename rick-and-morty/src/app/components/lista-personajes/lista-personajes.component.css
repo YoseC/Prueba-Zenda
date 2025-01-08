@@ -1,0 +1,21 @@
+.character-card {
+  width: 300px;
+  margin: 20px;
+  display: inline-block;
+}
+
+mat-card {
+  transition: transform 0.3s;
+}
+
+mat-card:hover {
+  transform: scale(1.05);
+}
+
+mat-card-title {
+  font-weight: bold;
+}
+
+.text-center {
+  text-align: center;
+}

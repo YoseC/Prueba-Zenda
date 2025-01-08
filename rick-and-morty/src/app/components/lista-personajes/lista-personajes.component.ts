@@ -1,10 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { RickAndMortyService } from '../../services/rick-and-morty.service';
+
 
 @Component({
   selector: 'app-lista-personajes',
   templateUrl: './lista-personajes.component.html',
-  styleUrl: './lista-personajes.component.css'
+  styleUrls: ['./lista-personajes.component.css']
 })
-export class ListaPersonajesComponent {
+export class ListaPersonajesComponent implements OnInit {
+  characters: any[] = [];
 
+  constructor(private rickAndMortyService: RickAndMortyService) {}
+
+  ngOnInit(): void {
+    this.rickAndMortyService.getCharacters().subscribe((response) => {
+      this.characters = response.results;
+    });
+  }
 }

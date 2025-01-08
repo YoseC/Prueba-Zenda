@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
+import {MatCardModule} from '@angular/material/card';
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -12,6 +13,10 @@ import { HeaderComponent } from './components/header/header.component';
 import { FavoritosComponent } from './components/favoritos/favoritos.component';
 import { ListaPersonajesComponent } from './components/lista-personajes/lista-personajes.component';
 import { DetallesPersonajesComponent } from './components/detalles-personajes/detalles-personajes.component';
+import { HttpClientModule } from '@angular/common/http';
+
+
+
 
 @NgModule({
   declarations: [
@@ -23,10 +28,12 @@ import { DetallesPersonajesComponent } from './components/detalles-personajes/de
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule,
     MatButtonModule,
     MatToolbarModule,
-    MatIconModule
+    MatIconModule,
+    MatCardModule
   ],
   providers: [],
   bootstrap: [AppComponent]
