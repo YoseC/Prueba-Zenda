@@ -1,2 +1,4 @@
 <app-header></app-header>
-<app-lista-personajes></app-lista-personajes>
+
+<app-lista-personajes (characterSelected)="verDetalles($event)"></app-lista-personajes>
+<app-detalles-personajes [character]="selectedCharacter"></app-detalles-personajes>

@@ -5,6 +5,13 @@ import { Component } from '@angular/core';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
-  title = 'rick-and-morty';
+
+
+  export class AppComponent {
+    selectedCharacter: any = null;
+
+    verDetalles(character: any) {
+      console.log('Personaje recibido en AppComponent:', character); // Depuración
+      this.selectedCharacter = character;
+    }
 }

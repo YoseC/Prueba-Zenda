@@ -1,0 +1,15 @@
+.details-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+}
+
+.details-card {
+  width: 500px;
+  text-align: center;
+}
+
+.details-card img {
+  height: 350px;
+  object-fit: cover;
+}
