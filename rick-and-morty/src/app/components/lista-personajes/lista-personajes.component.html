@@ -1,16 +1,26 @@
-<mat-card *ngFor="let character of characters" class="character-card">
-  <img mat-card-image [src]="character.image" alt="{{ character.name }}">
-  <mat-card-title class="text-center"> {{ character.name }} </mat-card-title>
-  <mat-card-subtitle class="text-center">{{ character.species }} - {{ character.status }}</mat-card-subtitle>
+<div class="filter-container">
+  <mat-form-field appearance="outline">
+    <mat-label>Buscar por nombre</mat-label>
+    <input matInput (keyup)="applyFilter($event)" placeholder="Rick, Morty..." #inputName>
+  </mat-form-field>
+</div>
 
-  <mat-card-content>
-    <p><strong>Género:</strong> {{ character.gender }}</p>
-    <p><strong>Creado:</strong> {{ character.created }}</p>
-  </mat-card-content>
-
-  <mat-card-actions>
-    <button mat-raised-button color="primary">Detalles</button>
-    <button mat-button color="accent">Favorito</button>
-  </mat-card-actions>
-</mat-card>
+<div class="card-container">
+  <mat-card *ngFor="let character of filteredCharacters" class="character-card">
+    <img mat-card-image [src]="character.image" alt="{{ character.name }}">
+    <mat-card-title>{{ character.name }}</mat-card-title>
+    <mat-card-subtitle>
+      {{ character.species }} - {{ character.status }}
+    </mat-card-subtitle>
+    <mat-card-content>
+      <p><strong>Género:</strong> {{ character.gender }}</p>
+      <p><strong>Tipo:</strong> {{ character.type || 'N/A' }}</p>
+      <p><strong>Creado:</strong> {{ character.created | date }}</p>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary">Detalles</button>
+      <button mat-button color="accent">Favorito</button>
+    </mat-card-actions>
+  </mat-card>
+</div>
 
