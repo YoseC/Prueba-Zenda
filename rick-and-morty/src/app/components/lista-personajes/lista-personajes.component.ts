@@ -22,6 +22,7 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
   filteredEpisodes: any[] = [];
   filteredLocations: any[] = [];
   displayedColumns: string[] = [
+   
     'name',
     'status',
     'species',
@@ -64,10 +65,18 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
     this.favoriteSelected.emit(character);
   }
 
-  applyFilter(event: Event) {
+  applyNameFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.toLowerCase();
     this.filteredCharacters = this.characters.filter((character) =>
       character.name.toLowerCase().includes(filterValue)
+    );
+    this.calculateTotals();
+  }
+
+  applySpeciesFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value.toLowerCase();
+    this.filteredCharacters = this.characters.filter((character) =>
+      character.species.toLowerCase().includes(filterValue)
     );
     this.calculateTotals();
   }
