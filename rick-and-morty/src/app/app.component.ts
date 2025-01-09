@@ -10,8 +10,8 @@ import { Component } from '@angular/core';
   export class AppComponent {
     selectedCharacter: any = null;
 
-    verDetalles(character: any) {
-      console.log('Personaje recibido en AppComponent:', character); // Depuración
-      this.selectedCharacter = character;
-    }
+verDetalles(character: any) {
+  console.log('Personaje recibido en AppComponent:', character); // Depuración
+  this.selectedCharacter = character;
+}
 }

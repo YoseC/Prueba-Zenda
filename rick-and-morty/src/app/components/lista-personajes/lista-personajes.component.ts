@@ -18,6 +18,8 @@ export class ListaPersonajesComponent implements OnInit {
 
   @Output()
   characterSelected = new EventEmitter<any>();
+  episodeSelected = new EventEmitter<any>();
+  locationSelected = new EventEmitter<any>();
 
   constructor(private rickAndMortyService: RickAndMortyService) {}
 
@@ -26,14 +28,7 @@ export class ListaPersonajesComponent implements OnInit {
       this.characters = response.results;
       this.filteredCharacters = response.results;
     });
-    this.rickAndMortyService.getEpisodes().subscribe((response: any) => {
-      this.episodes = response.results;
-      this.filteredEpisodes = response.results;
-    });
-    this.rickAndMortyService.getLocations().subscribe((response: any) => {
-      this.locations = response.results;
-      this.filteredLocations = response.results;
-    });
+
   }
 
   applyFilter(event: Event) {
@@ -46,5 +41,26 @@ export class ListaPersonajesComponent implements OnInit {
   verDetalles(character: any) {
     console.log('Personaje seleccionado en lista:', character);
     this.characterSelected.emit(character);
+
+
   }
+  verInfo(episodes: any, locations: any) {
+    console.log('Emitir episodios y ubicaciones:', episodes, locations);
+    this.episodeSelected.emit(episodes);
+    this.locationSelected.emit(locations);
+
+
+    this.rickAndMortyService.getEpisodes().subscribe((response: any) => {
+      this.episodes = response.results;
+      console.log('Episodios:', this.episodes);
+      this.filteredEpisodes = response.results;
+    });
+    this.rickAndMortyService.getLocations().subscribe((response: any) => {
+      this.locations = response.results;
+      console.log('Locations:', this.locations);
+      this.filteredLocations = response.results;
+    });
+  }
+
+
 }

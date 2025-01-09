@@ -1,13 +1,15 @@
 <div class="details-card">
-  <mat-card>
-    <img mat-card-image [src]="character?.image" alt="{{ character?.name }}">
-    <mat-card-title>{{ character?.name }}</mat-card-title>
-    <mat-card-subtitle>{{ character?.species }} - {{ character?.status }}</mat-card-subtitle>
+  <mat-card *ngIf="character">
+    <img mat-card-image [src]="character.image" alt="{{ character.name }}">
+    <mat-card-title>{{ character.name }}</mat-card-title>
+    <mat-card-subtitle>{{ character.species }} - {{ character.status }}</mat-card-subtitle>
     <mat-card-content>
-      <p><strong>Género:</strong> {{ character?.gender }}</p>
-      <p><strong>Tipo:</strong> {{ character?.type }}</p>
-      <p><strong>Creado:</strong> {{ character?.created | date }}</p>
-      <p><strong>Locación:</strong> {{ character?.location.name }}</p>
+      <p><strong>Género:</strong> {{ character.gender }}</p>
+      <p><strong>Tipo:</strong> {{ character.type }}</p>
+      <p><strong>Creado:</strong> {{ character.created | date }}</p>
+      <p><strong>Origen:</strong> {{ origin?.name }} - {{ origin?.residents?.length > 0 ? origin.residents[0].name : 'No tiene residentes' }}</p>
+      <p><strong>Locación:</strong> {{ location?.name }} - {{ location?.residents?.length > 0 ? location.residents[0].name : 'No tiene residentes' }}</p>
+      <p><strong>Episodio:</strong> {{ episode?.name }}</p>
     </mat-card-content>
   </mat-card>
 </div>

@@ -16,10 +16,24 @@ export class RickAndMortyService {
   getCharacters(): Observable<any> {
     return this.http.get<any>(this.apiUrl);
   }
+
   getEpisodes(): Observable<any> {
     return this.http.get<any>(this.apiUrlEpisode);
   }
+
   getLocations(): Observable<any> {
     return this.http.get<any>(this.apiUrlLocation);
+  }
+
+  getCharacter(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  }
+
+  getLocation(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrlLocation}/${id}`);
+  }
+
+  getEpisode(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrlEpisode}/${id}`);
   }
 }
