@@ -1,12 +1,15 @@
-<app-header></app-header>
+<app-header
+  [favoriteCharacter]="favoriteCharacter"
+  (favoriteClicked)="mostrarDetallesFavorito($event)">
+</app-header>
 
-<div class="main-container">
-  <div class="list-container">
-    <lista-personajes (characterSelected)="verDetalles($event)"></lista-personajes>
-  </div>
+<div class="content-container">
+  <lista-personajes
+    [favoriteCharacter]="favoriteCharacter"
+    (characterSelected)="verDetalles($event)"
+    (favoriteSelected)="onFavoriteSelected($event)">
+  </lista-personajes>
 
-  <div class="details-container">
-    <detalles-personajes [character]="selectedCharacter"></detalles-personajes>
-  </div>
+  <detalles-personajes *ngIf="selectedCharacter" [character]="selectedCharacter">
+  </detalles-personajes>
 </div>
-

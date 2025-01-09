@@ -1,4 +1,13 @@
-mat-toolbar{
-  justify-content: space-between;
+.favorito {
+  margin-left: auto;
   display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.favorito-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
 }

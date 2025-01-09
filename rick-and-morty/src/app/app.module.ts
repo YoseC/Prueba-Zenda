@@ -19,7 +19,7 @@ import { AppComponent } from './app.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { HeaderComponent } from './components/header/header.component';
-import { FavoritosComponent } from './components/favoritos/favoritos.component';
+
 import { ListaPersonajesComponent } from './components/lista-personajes/lista-personajes.component';
 import { DetallesPersonajesComponent } from './components/detalles-personajes/detalles-personajes.component';
 import { HttpClientModule } from '@angular/common/http';
@@ -31,7 +31,6 @@ import { HttpClientModule } from '@angular/common/http';
   declarations: [
     AppComponent,
     HeaderComponent,
-    FavoritosComponent,
     ListaPersonajesComponent,
     DetallesPersonajesComponent
   ],

@@ -1,5 +1,6 @@
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { RickAndMortyService } from '../../services/rick-and-morty.service';
+import { FavoritosService } from '../../services/favoritos.service';
 
 @Component({
   selector: 'lista-personajes',
@@ -7,6 +8,10 @@ import { RickAndMortyService } from '../../services/rick-and-morty.service';
   styleUrls: ['./lista-personajes.component.css'],
 })
 export class ListaPersonajesComponent implements OnInit {
+  @Input() favoriteCharacter: any;
+  @Output() favoriteSelected = new EventEmitter<any>();
+  @Output() characterSelected = new EventEmitter<any>();
+
   row: any;
   characters: any[] = [];
   episodes: any[] = [];
@@ -14,21 +19,26 @@ export class ListaPersonajesComponent implements OnInit {
   filteredCharacters: any[] = [];
   filteredEpisodes: any[] = [];
   filteredLocations: any[] = [];
-  displayedColumns: string[] = ['name', 'status', 'species', 'gender', 'type', 'created', 'detalle'];
+  displayedColumns: string[] = ['name', 'status', 'species', 'gender', 'type', 'created', 'detalle', 'favorito'];
 
-  @Output()
-  characterSelected = new EventEmitter<any>();
-  episodeSelected = new EventEmitter<any>();
-  locationSelected = new EventEmitter<any>();
-
-  constructor(private rickAndMortyService: RickAndMortyService) {}
+  constructor(private rickAndMortyService: RickAndMortyService,
+    private favoritosService: FavoritosService) {}
 
   ngOnInit(): void {
     this.rickAndMortyService.getCharacters().subscribe((response: any) => {
       this.characters = response.results;
       this.filteredCharacters = response.results;
     });
+  }
 
+  esFavorito(character: any): boolean {
+    return this.favoriteCharacter && this.favoriteCharacter.id === character.id;
+  }
+
+  marcarFavorito(character: any) {
+    console.log('Personaje marcado como favorito:', character);
+    this.favoriteCharacter = character;
+    this.favoriteSelected.emit(character);
   }
 
   applyFilter(event: Event) {
@@ -41,26 +51,5 @@ export class ListaPersonajesComponent implements OnInit {
   verDetalles(character: any) {
     console.log('Personaje seleccionado en lista:', character);
     this.characterSelected.emit(character);
-
-
   }
-  verInfo(episodes: any, locations: any) {
-    console.log('Emitir episodios y ubicaciones:', episodes, locations);
-    this.episodeSelected.emit(episodes);
-    this.locationSelected.emit(locations);
-
-
-    this.rickAndMortyService.getEpisodes().subscribe((response: any) => {
-      this.episodes = response.results;
-      console.log('Episodios:', this.episodes);
-      this.filteredEpisodes = response.results;
-    });
-    this.rickAndMortyService.getLocations().subscribe((response: any) => {
-      this.locations = response.results;
-      console.log('Locations:', this.locations);
-      this.filteredLocations = response.results;
-    });
-  }
-
-
 }
