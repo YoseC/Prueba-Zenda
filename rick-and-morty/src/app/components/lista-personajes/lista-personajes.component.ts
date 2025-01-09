@@ -1,13 +1,15 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { RickAndMortyService } from '../../services/rick-and-morty.service';
 import { FavoritosService } from '../../services/favoritos.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'lista-personajes',
   templateUrl: './lista-personajes.component.html',
   styleUrls: ['./lista-personajes.component.css'],
 })
-export class ListaPersonajesComponent implements OnInit {
+export class ListaPersonajesComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   @Input() favoriteCharacter: any;
   @Output() favoriteSelected = new EventEmitter<any>();
   @Output() characterSelected = new EventEmitter<any>();
@@ -38,11 +40,18 @@ export class ListaPersonajesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.rickAndMortyService.getCharacters().subscribe((response: any) => {
-      this.characters = response.results;
-      this.filteredCharacters = response.results;
-      this.calculateTotals();
-    });
+    this.rickAndMortyService.getCharacters()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((response: any) => {
+        this.characters = response;
+        this.filteredCharacters = response;
+        this.calculateTotals();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   esFavorito(character: any): boolean {
