@@ -9,3 +9,24 @@ table {
 .favorite-icon {
   color: red;
 }
+
+.totals-container {
+  margin-top: 20px;
+}
+
+.totals-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+mat-card {
+  flex: 1;
+  margin: 20px;
+}
+
+mat-table {
+  width: 100%;
+  margin-bottom: 20px;
+}

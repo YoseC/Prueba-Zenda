@@ -19,15 +19,29 @@ export class ListaPersonajesComponent implements OnInit {
   filteredCharacters: any[] = [];
   filteredEpisodes: any[] = [];
   filteredLocations: any[] = [];
-  displayedColumns: string[] = ['name', 'status', 'species', 'gender', 'type', 'created', 'detalle', 'favorito'];
+  displayedColumns: string[] = [
+    'name',
+    'status',
+    'species',
+    'gender',
+    'type',
+    'created',
+    'detalle',
+    'favorito',
+  ];
+  speciesCount: { key: string; value: number }[] = [];
+  typeCount: { key: string; value: number }[] = [];
 
-  constructor(private rickAndMortyService: RickAndMortyService,
-    private favoritosService: FavoritosService) {}
+  constructor(
+    private rickAndMortyService: RickAndMortyService,
+    private favoritosService: FavoritosService
+  ) {}
 
   ngOnInit(): void {
     this.rickAndMortyService.getCharacters().subscribe((response: any) => {
       this.characters = response.results;
       this.filteredCharacters = response.results;
+      this.calculateTotals();
     });
   }
 
@@ -46,10 +60,33 @@ export class ListaPersonajesComponent implements OnInit {
     this.filteredCharacters = this.characters.filter((character) =>
       character.name.toLowerCase().includes(filterValue)
     );
+    this.calculateTotals();
   }
 
   verDetalles(character: any) {
     console.log('Personaje seleccionado en lista:', character);
     this.characterSelected.emit(character);
+  }
+
+  calculateTotals(): void {
+    // Totales por especie
+    const speciesMap = this.characters.reduce((acc: any, character: any) => {
+      acc[character.species] = (acc[character.species] || 0) + 1;
+      return acc;
+    }, {});
+    this.speciesCount = Object.entries(speciesMap).map(([key, value]) => ({
+      key,
+      value: value as number,
+    }));
+
+    // Totales por tipo
+    const typeMap = this.characters.reduce((acc: any, character: any) => {
+      acc[character.type || 'Unknown'] = (acc[character.type || 'Unknown'] || 0) + 1;
+      return acc;
+    }, {});
+    this.typeCount = Object.entries(typeMap).map(([key, value]) => ({
+      key,
+      value: value as number,
+    }));
   }
 }

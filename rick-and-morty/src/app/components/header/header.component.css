@@ -4,10 +4,20 @@
   align-items: center;
   gap: 10px;
 }
+.favorito:hover{
+  background-color: blueviolet;
 
+}
+.fondo:hover{
+  color: rgb(216, 66, 66);
+}
 .favorito-img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.mouse{
+  cursor: pointer;
 }
