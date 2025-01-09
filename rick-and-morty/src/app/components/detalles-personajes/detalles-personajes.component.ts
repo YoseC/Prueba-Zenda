@@ -9,6 +9,7 @@ import { RickAndMortyService } from '../../services/rick-and-morty.service';
 export class DetallesPersonajesComponent implements OnChanges {
   @Input() character: any;
   origin: any;
+  originResident: any;
   location: any;
   episode: any;
 
@@ -24,9 +25,17 @@ export class DetallesPersonajesComponent implements OnChanges {
     if (this['character'].origin.url) {
       this.rickAndMortyService.getLocation(this['character'].origin.url.split('/').pop()).subscribe((data) => {
         this.origin = data;
+        if (this.origin.residents.length > 0) {
+          this.rickAndMortyService.getCharacter(this.origin.residents[0].split('/').pop()).subscribe((resident) => {
+            this.originResident = resident;
+          });
+        } else {
+          this.originResident = { name: 'No tiene residentes' };
+        }
       });
     } else {
       this.origin = { name: 'Desconocido', residents: [] };
+      this.originResident = { name: 'No tiene residentes' };
     }
 
     if (this['character'].location.url) {
