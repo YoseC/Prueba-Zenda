@@ -27,14 +27,16 @@ mat-toolbar {
   display: flex;
   align-items: center;
   gap: 10px;
+  font-family: "Permanent Marker", serif;
 }
 
 .favorito:hover {
-  background-color: blueviolet;
+  background-color: #4e548f;
+
 }
 
 .fondo:hover {
-  color: rgb(216, 66, 66);
+  color: rgb(255, 255, 255);
 }
 
 .favorito-img {
