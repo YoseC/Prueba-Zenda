@@ -1,5 +1,39 @@
+/* Estilo para las cards de detalles */
+.details-card {
+  background-color: #dff5ff; /* Fondo blanco semitransparente */
+  border-radius: 10px; /* Bordes redondeados */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+  padding: 20px; /* Padding interno */
+  margin: 20px; /* Margen externo */
+  opacity: 0.8; /* Ajusta la opacidad según tus necesidades */
+  max-width: 400px; /* Ancho máximo de la carta */
+  width: 400px; /* Ancho completo */
+}
+
+
+.details-card mat-card-header {
+  background-color: rgba(1, 7, 1, 0.1); /* Fondo semitransparente para el header */
+  border-radius: 10px 10px 0 0; /* Bordes redondeados solo en la parte superior */
+}
+
+.details-card mat-card-title {
+  color: #0a0707; /* Color del texto del título */
+  text-align: center;
+  font-family: "Permanent Marker", serif;
+
+}
+.details-card mat-card-subtitle{
+  text-align: center;
+}
+
+.details-card mat-card-content {
+  background-color: #66adcc; /* Fondo semitransparente para el contenido */
+  border-radius: 0 0 10px 10px; /* Bordes redondeados solo en la parte inferior */
+}
+
+/* Estilo para el botón de detalles */
 .details-card .details-button {
-  background-color: #007bff;
+  background-color:#4e548f;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -15,4 +49,12 @@
 
 .details-card .details-button:hover {
   background-color: #0056b3;
+}
+
+/* Estilo para la imagen */
+.icon {
+  width: 100%;
+  height: 350px;
+  border-radius: 10px 10px 0 0; /* Bordes redondeados solo en la parte superior */
+
 }

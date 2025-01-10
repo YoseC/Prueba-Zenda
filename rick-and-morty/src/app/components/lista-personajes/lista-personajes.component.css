@@ -7,6 +7,7 @@ table {
   backdrop-filter: blur(1px);
   border-collapse: collapse; /* Elimina espacios entre bordes */
   border: none; /* Elimina el borde de la tabla */
+
 }
 
 th, td {
@@ -18,6 +19,9 @@ th, td {
 th {
 
   color: #ffffff; /* Color del texto del encabezado */
+  font-family: "Rubik Vinyl", serif;
+  font-size: 15px;
+  font-weight: bold;
 }
 
 td {
@@ -72,26 +76,26 @@ mat-card {
 
 
 /* Estilo para las cards de totales */
-.totals-card {
+.totals-card-2 {
   background-color: rgba(242, 220, 175, 0.8); /* Fondo blanco semitransparente */
   border-radius: 10px; /* Bordes redondeados */
-
   padding: 20px; /* Padding interno */
   margin: 20px; /* Margen externo */
 }
 
-.totals-card mat-card-header {
-
+.totals-card-2 mat-card-header {
   border-radius: 10px 10px 0 0; /* Bordes redondeados solo en la parte superior */
+  text-align: center;
 }
 
-.totals-card mat-card-title {
+.totals-card-2 mat-card-title {
+  font-family: "Rubik Vinyl", serif;
   color: #0a0707; /* Color del texto del título */
+  text-align: center; /* Centra el texto del título */
 }
 
-.totals-card mat-card-content {
+.totals-card-2 mat-card-content {
   background-color: rgba(250, 186, 96, 0.8); /* Fondo semitransparente para el contenido */
   border-radius: 0 0 10px 10px; /* Bordes redondeados solo en la parte inferior */
 }
-
 

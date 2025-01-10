@@ -1,6 +1,6 @@
 <div class="details-card">
   <mat-card *ngIf="character">
-    <img mat-card-image [src]="character.image" alt="{{ character.name }}">
+    <img mat-card-image [src]="character.image" class="icon" alt="{{ character.name }}">
     <mat-card-title>{{ character.name }}</mat-card-title>
     <mat-card-subtitle>{{ character.species }} - {{ character.status }}</mat-card-subtitle>
     <mat-card-content>
