@@ -1,83 +1,99 @@
-<div class="filter-container">
+<div class="filter-container filtro">
   <mat-form-field appearance="fill">
     <mat-label>Buscar por nombre</mat-label>
-    <input matInput (keyup)="applyNameFilter($event)" placeholder="Rick, Morty..." #inputName>
+    <input
+      matInput
+      (keyup)="applyNameFilter($event)"
+      placeholder="Rick, Morty..."
+      #inputName
+    />
   </mat-form-field>
   <mat-form-field appearance="fill">
     <mat-label>Buscar por especie</mat-label>
-    <input matInput (keyup)="applySpeciesFilter($event)" placeholder="Human, Alien..." #inputSpecies>
+    <input
+      matInput
+      (keyup)="applySpeciesFilter($event)"
+      placeholder="Human, Alien..."
+      #inputSpecies
+    />
   </mat-form-field>
 </div>
 
-<div class="mat-elevation-z8">
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-
+<div class="mat-elevation-z8 fondito">
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 demo-table">
     <!-- Nombre -->
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef> Nombre </th>
-      <td mat-cell *matCellDef="let character"> {{ character.name }} </td>
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let character">{{ character.name }}</td>
     </ng-container>
 
     <!-- Estado -->
     <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef> Estado </th>
-      <td mat-cell *matCellDef="let character"> {{ character.status }} </td>
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let character">{{ character.status }}</td>
     </ng-container>
 
     <!-- Especie -->
     <ng-container matColumnDef="species">
-      <th mat-header-cell *matHeaderCellDef> Especie </th>
-      <td mat-cell *matCellDef="let character"> {{ character.species }} </td>
+      <th mat-header-cell *matHeaderCellDef>Especie</th>
+      <td mat-cell *matCellDef="let character">{{ character.species }}</td>
     </ng-container>
 
     <!-- Tipo -->
     <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef> Tipo </th>
-      <td mat-cell *matCellDef="let character"> {{ character.type }} </td>
+      <th mat-header-cell *matHeaderCellDef>Tipo</th>
+      <td mat-cell *matCellDef="let character">{{ character.type }}</td>
     </ng-container>
 
     <!-- Género -->
     <ng-container matColumnDef="gender">
-      <th mat-header-cell *matHeaderCellDef> Género </th>
-      <td mat-cell *matCellDef="let character"> {{ character.gender }} </td>
+      <th mat-header-cell *matHeaderCellDef>Género</th>
+      <td mat-cell *matCellDef="let character">{{ character.gender }}</td>
     </ng-container>
 
     <!-- Creado -->
     <ng-container matColumnDef="created">
-      <th mat-header-cell *matHeaderCellDef> Creado </th>
-      <td mat-cell *matCellDef="let character"> {{ character.created | date }} </td>
+      <th mat-header-cell *matHeaderCellDef>Creado</th>
+      <td mat-cell *matCellDef="let character">
+        {{ character.created | date }}
+      </td>
     </ng-container>
 
     <!-- Detalles -->
     <ng-container matColumnDef="detalle">
-      <th mat-header-cell *matHeaderCellDef> Detalles </th>
-      <td mat-cell *matCellDef="let character">
-        <button mat-button (click)="verDetalles(character)">Detalles</button>
+      <th mat-header-cell *matHeaderCellDef>Detalles</th>
+        <td mat-cell *matCellDef="let character">
+        <button class="details-button" mat-button (click)="verDetalles(character)">Detalles</button>
       </td>
     </ng-container>
 
     <!-- Favorito -->
     <ng-container matColumnDef="favorito">
-      <th mat-header-cell *matHeaderCellDef> Favorito </th>
+      <th mat-header-cell *matHeaderCellDef>Favorito</th>
       <td mat-cell *matCellDef="let character">
         <button mat-icon-button (click)="marcarFavorito(character)">
-          <mat-icon>{{ esFavorito(character) ? 'favorite' : 'favorite_border' }}</mat-icon>
+          <mat-icon>{{
+            esFavorito(character) ? "favorite" : "favorite_border"
+          }}</mat-icon>
         </button>
       </td>
     </ng-container>
 
     <!-- Fila Encabezado y Cuerpo -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 
-  <mat-paginator [pageSizeOptions]="[3, 5, 10, 20]" showFirstLastButtons aria-label="Select page of characters"></mat-paginator>
+  <mat-paginator
+    [pageSizeOptions]="[3, 5, 10, 20]"
+    showFirstLastButtons
+    aria-label="Select page of characters"
+  ></mat-paginator>
 </div>
 
 <div class="totals-container">
   <!-- Totales por Especie -->
-  <mat-card>
+  <mat-card class="totals-card">
     <mat-card-header>
       <mat-card-title>Totales por Especie</mat-card-title>
     </mat-card-header>
@@ -85,24 +101,24 @@
       <table mat-table [dataSource]="speciesCount" class="mat-elevation-z8">
         <!-- Columna Especie -->
         <ng-container matColumnDef="species">
-          <th mat-header-cell *matHeaderCellDef> Especie </th>
-          <td mat-cell *matCellDef="let element"> {{ element.key }} </td>
+          <th mat-header-cell *matHeaderCellDef>Especie</th>
+          <td mat-cell *matCellDef="let element">{{ element.key }}</td>
         </ng-container>
 
         <!-- Columna Cantidad -->
         <ng-container matColumnDef="count">
-          <th mat-header-cell *matHeaderCellDef> Cantidad </th>
-          <td mat-cell *matCellDef="let element"> {{ element.value }} </td>
+          <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+          <td mat-cell *matCellDef="let element">{{ element.value }}</td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="['species', 'count']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['species', 'count'];"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['species', 'count']"></tr>
       </table>
     </mat-card-content>
   </mat-card>
 
   <!-- Totales por Tipo -->
-  <mat-card>
+  <mat-card class="totals-card">
     <mat-card-header>
       <mat-card-title>Totales por Tipo</mat-card-title>
     </mat-card-header>
@@ -110,19 +126,21 @@
       <table mat-table [dataSource]="typeCount" class="mat-elevation-z8">
         <!-- Columna Tipo -->
         <ng-container matColumnDef="type">
-          <th mat-header-cell *matHeaderCellDef> Tipo </th>
-          <td mat-cell *matCellDef="let element"> {{ element.key }} </td>
+          <th mat-header-cell *matHeaderCellDef>Tipo</th>
+          <td mat-cell *matCellDef="let element">{{ element.key }}</td>
         </ng-container>
 
         <!-- Columna Cantidad -->
         <ng-container matColumnDef="count">
-          <th mat-header-cell *matHeaderCellDef> Cantidad </th>
-          <td mat-cell *matCellDef="let element"> {{ element.value }} </td>
+          <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+          <td mat-cell *matCellDef="let element">{{ element.value }}</td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="['type', 'count']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['type', 'count'];"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['type', 'count']"></tr>
       </table>
     </mat-card-content>
   </mat-card>
 </div>
+
+

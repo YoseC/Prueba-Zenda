@@ -1,11 +1,9 @@
-<mat-toolbar color="primary">
-  <span>Rick & Morty App</span>
+<mat-toolbar>
+  <span class="header-title">Rick & Morty</span>
 
-  <div *ngIf="favorito" class="favorito mouse"  (click)="mostrarInfoFavorito()">
+  <div *ngIf="favorito" class="favorito mouse" (click)="mostrarInfoFavorito()">
     <span class="fondo">Favorito: {{ favorito.name }}</span>
     <img [src]="favorito.image" alt="{{ favorito.name }}" class="favorito-img" />
     <!-- <button mat-button (click)="mostrarInfoFavorito()">Mostrar Info</button> -->
   </div>
 </mat-toolbar>
-
-

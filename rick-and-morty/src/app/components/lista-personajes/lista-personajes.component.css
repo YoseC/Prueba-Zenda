@@ -1,17 +1,49 @@
 table {
   width: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0.9; /* Ajusta el valor de opacidad según tus necesidades */
+  background-color: #6699CC; /* Fondo blanco semitransparente */
+  backdrop-filter: blur(1px);
+  border-collapse: collapse; /* Elimina espacios entre bordes */
+  border: none; /* Elimina el borde de la tabla */
 }
 
-.mat-mdc-form-field {
-  font-size: 14px;
-  width: 100%;
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Línea inferior semitransparente */
 }
+
+th {
+
+  color: #ffffff; /* Color del texto del encabezado */
+}
+
+td {
+  background-color: #6699CC; /* Fondo semitransparente para las celdas */
+  color: #ffffff; /* Color del texto de las celdas */
+  font-weight: bold;
+  font-size: 18px;
+
+}
+
+
 .favorite-icon {
   color: red;
 }
 
-.totals-container {
-  margin-top: 20px;
+.details-button {
+  background-color: #cc9666;
+  padding: 10px 20px;
+  text-align: center;
+  margin: 10px 2px;
+  cursor: pointer;
+
+}
+
+.details-button:hover {
+  background-color: #8f6947;
 }
 
 .totals-container {
@@ -26,7 +58,40 @@ mat-card {
   margin: 20px;
 }
 
-mat-table {
-  width: 100%;
-  margin-bottom: 20px;
+
+.filter-container {
+  display: flex;
+  justify-content:flex-start;
+  gap: 10px; /* Añade espacio entre los filtros */
+  margin:20px;
 }
+
+.filter-container mat-form-field {
+  width: 50%; /* Ajusta el tamaño del input según sea necesario */
+  max-width: 400px; }
+
+
+/* Estilo para las cards de totales */
+.totals-card {
+  background-color: rgba(242, 220, 175, 0.8); /* Fondo blanco semitransparente */
+  border-radius: 10px; /* Bordes redondeados */
+
+  padding: 20px; /* Padding interno */
+  margin: 20px; /* Margen externo */
+}
+
+.totals-card mat-card-header {
+
+  border-radius: 10px 10px 0 0; /* Bordes redondeados solo en la parte superior */
+}
+
+.totals-card mat-card-title {
+  color: #0a0707; /* Color del texto del título */
+}
+
+.totals-card mat-card-content {
+  background-color: rgba(250, 186, 96, 0.8); /* Fondo semitransparente para el contenido */
+  border-radius: 0 0 10px 10px; /* Bordes redondeados solo en la parte inferior */
+}
+
+
