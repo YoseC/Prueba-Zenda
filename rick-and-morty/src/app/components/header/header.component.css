@@ -1,8 +1,8 @@
 mat-toolbar {
-  height: 100px; /* Ajusta la altura del header según sea necesario */
+  height: 100px; 
   display: flex;
   align-items: center;
-  padding: 0 20px; /* Ajusta el padding según sea necesario */
+  padding: 0 20px;
   border-radius: 8px;
   background-color:#6f79cc
 
