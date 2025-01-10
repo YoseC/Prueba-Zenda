@@ -116,4 +116,12 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
       value: value as number,
     }));
   }
+
+  getTotalSpecies(): number {
+    return this.speciesCount.length;
+  }
+
+  getTotalTypes(): number {
+    return this.typeCount.length;
+  }
 }

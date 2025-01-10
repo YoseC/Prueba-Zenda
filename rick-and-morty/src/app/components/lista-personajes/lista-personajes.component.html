@@ -85,62 +85,35 @@
   </table>
 
   <mat-paginator
-    [pageSizeOptions]="[3, 5, 10, 20]"
+    [pageSizeOptions]="[ 5, 10, 20]"
     showFirstLastButtons
     aria-label="Select page of characters"
   ></mat-paginator>
 </div>
 
-<div class="totals-container">
-  <!-- Totales por Especie -->
-  <mat-card class="totals-card-2">
-    <mat-card-header>
-      <mat-card-title>Totales por Especie</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <table mat-table [dataSource]="speciesCount" class="mat-elevation-z8">
-        <!-- Columna Especie -->
-        <ng-container matColumnDef="species">
-          <th mat-header-cell *matHeaderCellDef>Especie</th>
-          <td mat-cell *matCellDef="let element">{{ element.key }}</td>
-        </ng-container>
 
-        <!-- Columna Cantidad -->
-        <ng-container matColumnDef="count">
-          <th mat-header-cell *matHeaderCellDef>Cantidad</th>
-          <td mat-cell *matCellDef="let element">{{ element.value }}</td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="['species', 'count']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['species', 'count']"></tr>
-      </table>
-    </mat-card-content>
-  </mat-card>
 
   <!-- Totales por Tipo -->
-  <mat-card class="totals-card-2">
-    <mat-card-header>
-      <mat-card-title>Totales por Tipo</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <table mat-table [dataSource]="typeCount" class="mat-elevation-z8">
-        <!-- Columna Tipo -->
-        <ng-container matColumnDef="type">
-          <th mat-header-cell *matHeaderCellDef>Tipo</th>
-          <td mat-cell *matCellDef="let element">{{ element.key }}</td>
-        </ng-container>
+  <div class="totals-container">
+    <!-- Totales por Especie -->
+    <mat-card class="totals-card-2">
+      <mat-card-header>
+        <mat-card-title>Total de Especies</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ getTotalSpecies() }}</p>
+      </mat-card-content>
+    </mat-card>
 
-        <!-- Columna Cantidad -->
-        <ng-container matColumnDef="count">
-          <th mat-header-cell *matHeaderCellDef>Cantidad</th>
-          <td mat-cell *matCellDef="let element">{{ element.value }}</td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="['type', 'count']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['type', 'count']"></tr>
-      </table>
-    </mat-card-content>
-  </mat-card>
-</div>
+    <!-- Totales por Tipo -->
+    <mat-card class="totals-card-2">
+      <mat-card-header>
+        <mat-card-title>Total de Tipos</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ getTotalTypes() }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
 
