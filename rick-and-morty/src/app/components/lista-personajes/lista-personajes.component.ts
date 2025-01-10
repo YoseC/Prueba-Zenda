@@ -1,4 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 import { RickAndMortyService } from '../../services/rick-and-morty.service';
 import { FavoritosService } from '../../services/favoritos.service';
 import { Subject, takeUntil } from 'rxjs';
@@ -22,7 +24,6 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
   filteredEpisodes: any[] = [];
   filteredLocations: any[] = [];
   displayedColumns: string[] = [
-   
     'name',
     'status',
     'species',
@@ -34,6 +35,9 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
   ];
   speciesCount: { key: string; value: number }[] = [];
   typeCount: { key: string; value: number }[] = [];
+  dataSource = new MatTableDataSource<any>(this.filteredCharacters);
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private rickAndMortyService: RickAndMortyService,
@@ -46,6 +50,9 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
       .subscribe((response: any) => {
         this.characters = response;
         this.filteredCharacters = response;
+        this.dataSource.data = this.filteredCharacters;
+        this.dataSource.paginator = this.paginator;
+        this.paginator.pageSize = 5;
         this.calculateTotals();
       });
   }
@@ -70,6 +77,7 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
     this.filteredCharacters = this.characters.filter((character) =>
       character.name.toLowerCase().includes(filterValue)
     );
+    this.dataSource.data = this.filteredCharacters;
     this.calculateTotals();
   }
 
@@ -78,6 +86,7 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
     this.filteredCharacters = this.characters.filter((character) =>
       character.species.toLowerCase().includes(filterValue)
     );
+    this.dataSource.data = this.filteredCharacters;
     this.calculateTotals();
   }
 
