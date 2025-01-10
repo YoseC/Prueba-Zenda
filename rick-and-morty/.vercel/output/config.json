@@ -1,0 +1,13 @@
+{
+  "version": 3,
+  "routes": [
+    {
+      "src": "^/(.*)$",
+      "dest": "/src/index.js"
+    }
+  ],
+  "framework": {
+    "version": "18.2.12"
+  },
+  "crons": []
+}
