@@ -3,7 +3,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { RickAndMortyService } from '../../services/rick-and-morty.service';
 import { FavoritosService } from '../../services/favoritos.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject,BehaviorSubject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'lista-personajes',
@@ -12,17 +12,14 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class ListaPersonajesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  @Input() favoriteCharacter: any;
+  private nameFilter$ = new BehaviorSubject<string>('');
+  private speciesFilter$ = new BehaviorSubject<string>('');
+
+  @Input() favoriteCharacter: any = null;
   @Output() favoriteSelected = new EventEmitter<any>();
   @Output() characterSelected = new EventEmitter<any>();
 
-  row: any;
   characters: any[] = [];
-  episodes: any[] = [];
-  locations: any[] = [];
-  filteredCharacters: any[] = [];
-  filteredEpisodes: any[] = [];
-  filteredLocations: any[] = [];
   displayedColumns: string[] = [
     'name',
     'status',
@@ -33,9 +30,8 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
     'detalle',
     'favorito',
   ];
+  dataSource = new MatTableDataSource<any>([]);
   speciesCount: { key: string; value: number }[] = [];
-  typeCount: { key: string; value: number }[] = [];
-  dataSource = new MatTableDataSource<any>(this.filteredCharacters);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -45,15 +41,16 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Carga inicial de personajes
     this.rickAndMortyService.getCharacters()
       .pipe(takeUntil(this.destroy$))
       .subscribe((response: any) => {
         this.characters = response;
-        this.filteredCharacters = response;
-        this.dataSource.data = this.filteredCharacters;
+        this.dataSource.data = response;
         this.dataSource.paginator = this.paginator;
         this.paginator.pageSize = 5;
         this.calculateTotals();
+        this.setupFilters();
       });
   }
 
@@ -62,42 +59,69 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  esFavorito(character: any): boolean {
-    return this.favoriteCharacter && this.favoriteCharacter.id === character.id;
+  setupFilters(): void {
+    // Filtro por nombre
+    this.nameFilter$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((name) => {
+        this.applyFilters(); // Aplica todos los filtros activos
+      });
+
+    // Filtro por especie
+    this.speciesFilter$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((species) => {
+        this.applyFilters(); // Aplica todos los filtros activos
+      });
   }
 
-  marcarFavorito(character: any) {
-    console.log('Personaje marcado como favorito:', character);
+  applyFilters(): void {
+    // Obtiene los valores actuales de los filtros
+    const nameFilter = this.nameFilter$.getValue() || '';
+    const speciesFilter = this.speciesFilter$.getValue() || '';
+
+    // Filtra los datos
+    this.dataSource.data = this.characters.filter((character) => {
+      const matchesName = nameFilter
+        ? character.name.toLowerCase().includes(nameFilter.toLowerCase())
+        : true; // Si el filtro está vacío, no afecta
+      const matchesSpecies = speciesFilter
+        ? character.species.toLowerCase().includes(speciesFilter.toLowerCase())
+        : true; // Si el filtro está vacío, no afecta
+
+      return matchesName && matchesSpecies; // Devuelve true solo si ambos coinciden
+    });
+
+    // Recalcula los totales basados en los datos filtrados
+    this.calculateTotals();
+  }
+
+  applyNameFilter(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.nameFilter$.next(input.value);
+  }
+
+  applySpeciesFilter(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.speciesFilter$.next(input.value); 
+  }
+
+  // Marcar personaje como favorito
+  marcarFavorito(character: any): void {
     this.favoriteCharacter = character;
     this.favoriteSelected.emit(character);
   }
 
-  applyNameFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value.toLowerCase();
-    this.filteredCharacters = this.characters.filter((character) =>
-      character.name.toLowerCase().includes(filterValue)
-    );
-    this.dataSource.data = this.filteredCharacters;
-    this.calculateTotals();
+  esFavorito(character: any): boolean {
+    return this.favoriteCharacter?.id === character.id;
   }
 
-  applySpeciesFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value.toLowerCase();
-    this.filteredCharacters = this.characters.filter((character) =>
-      character.species.toLowerCase().includes(filterValue)
-    );
-    this.dataSource.data = this.filteredCharacters;
-    this.calculateTotals();
-  }
-
-  verDetalles(character: any) {
-    console.log('Personaje seleccionado en lista:', character);
+  verDetalles(character: any): void {
     this.characterSelected.emit(character);
   }
 
   calculateTotals(): void {
-    // Totales por especie
-    const speciesMap = this.characters.reduce((acc: any, character: any) => {
+    const speciesMap = this.dataSource.data.reduce((acc: any, character: any) => {
       acc[character.species] = (acc[character.species] || 0) + 1;
       return acc;
     }, {});
@@ -105,23 +129,5 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
       key,
       value: value as number,
     }));
-
-    // Totales por tipo
-    const typeMap = this.characters.reduce((acc: any, character: any) => {
-      acc[character.type || 'Unknown'] = (acc[character.type || 'Unknown'] || 0) + 1;
-      return acc;
-    }, {});
-    this.typeCount = Object.entries(typeMap).map(([key, value]) => ({
-      key,
-      value: value as number,
-    }));
-  }
-
-  getTotalSpecies(): number {
-    return this.speciesCount.length;
-  }
-
-  getTotalTypes(): number {
-    return this.typeCount.length;
   }
 }
