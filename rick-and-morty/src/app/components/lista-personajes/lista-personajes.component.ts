@@ -2,8 +2,8 @@ import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild } 
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { RickAndMortyService } from '../../services/rick-and-morty.service';
-import { FavoritosService } from '../../services/favoritos.service';
-import { Subject,BehaviorSubject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { Subject, BehaviorSubject, combineLatest, takeUntil } from 'rxjs';
+import { map, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'lista-personajes',
@@ -12,14 +12,12 @@ import { Subject,BehaviorSubject, debounceTime, distinctUntilChanged, takeUntil 
 })
 export class ListaPersonajesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  private nameFilter$ = new BehaviorSubject<string>('');
-  private speciesFilter$ = new BehaviorSubject<string>('');
 
   @Input() favoriteCharacter: any = null;
   @Output() favoriteSelected = new EventEmitter<any>();
   @Output() characterSelected = new EventEmitter<any>();
 
-  characters: any[] = [];
+  allCharacters: any[] = []; // Todos los personajes cargados desde la API
   displayedColumns: string[] = [
     'name',
     'status',
@@ -32,25 +30,26 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
   ];
   dataSource = new MatTableDataSource<any>([]);
   speciesCount: { key: string; value: number }[] = [];
+  totalCharacters = 0; // Total de personajes
+  pageSize = 5; // Tamaño de página
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(
-    private rickAndMortyService: RickAndMortyService,
-    private favoritosService: FavoritosService
-  ) {}
+  // Filtros reactivos
+  private nameFilter$ = new BehaviorSubject<string>('');
+  private speciesFilter$ = new BehaviorSubject<string>('');
+  private pageIndex$ = new BehaviorSubject<number>(0);
+
+  constructor(private rickAndMortyService: RickAndMortyService) {}
 
   ngOnInit(): void {
-    // Carga inicial de personajes
-    this.rickAndMortyService.getCharacters()
+    // Cargar todos los personajes al inicio
+    this.rickAndMortyService.getAllCharacters()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((response: any) => {
-        this.characters = response;
-        this.dataSource.data = response;
-        this.dataSource.paginator = this.paginator;
-        this.paginator.pageSize = 5;
-        this.calculateTotals();
-        this.setupFilters();
+      .subscribe((characters) => {
+        this.allCharacters = characters; // Almacenar todos los personajes
+        this.totalCharacters = characters.length; // Total de personajes
+        this.setupReactiveFlow(); // Configurar flujo reactivo para filtros y paginación
       });
   }
 
@@ -59,43 +58,35 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  setupFilters(): void {
-    // Filtro por nombre
-    this.nameFilter$
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe((name) => {
-        this.applyFilters(); // Aplica todos los filtros activos
-      });
+  private setupReactiveFlow(): void {
+    // Combinar filtros y paginación en un único flujo reactivo
+    combineLatest([this.nameFilter$, this.speciesFilter$, this.pageIndex$])
+      .pipe(
+        debounceTime(300),
+        map(([nameFilter, speciesFilter, pageIndex]) => {
+          // Aplicar filtros globales
+          const filtered = this.allCharacters.filter((character) => {
+            const matchesName = nameFilter ? character.name.toLowerCase().includes(nameFilter.toLowerCase()) : true;
+            const matchesSpecies = speciesFilter ? character.species.toLowerCase().includes(speciesFilter.toLowerCase()) : true;
+            return matchesName && matchesSpecies;
+          });
 
-    // Filtro por especie
-    this.speciesFilter$
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe((species) => {
-        this.applyFilters(); // Aplica todos los filtros activos
+          // Configurar paginación después de aplicar filtros
+          this.totalCharacters = filtered.length; // Actualizar total para el paginador
+          const start = pageIndex * this.pageSize;
+          const end = start + this.pageSize;
+
+          return filtered.slice(start, end); // Personajes visibles
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((displayedCharacters) => {
+        this.dataSource.data = displayedCharacters; // Actualizar la tabla
+        this.calculateTotals(); // Actualizar totales
       });
   }
 
-  applyFilters(): void {
-    // Obtiene los valores actuales de los filtros
-    const nameFilter = this.nameFilter$.getValue() || '';
-    const speciesFilter = this.speciesFilter$.getValue() || '';
-
-    // Filtra los datos
-    this.dataSource.data = this.characters.filter((character) => {
-      const matchesName = nameFilter
-        ? character.name.toLowerCase().includes(nameFilter.toLowerCase())
-        : true; // Si el filtro está vacío, no afecta
-      const matchesSpecies = speciesFilter
-        ? character.species.toLowerCase().includes(speciesFilter.toLowerCase())
-        : true; // Si el filtro está vacío, no afecta
-
-      return matchesName && matchesSpecies; // Devuelve true solo si ambos coinciden
-    });
-
-    // Recalcula los totales basados en los datos filtrados
-    this.calculateTotals();
-  }
-
+  // Métodos para actualizar filtros y paginación
   applyNameFilter(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.nameFilter$.next(input.value);
@@ -103,10 +94,13 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
 
   applySpeciesFilter(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.speciesFilter$.next(input.value); 
+    this.speciesFilter$.next(input.value);
   }
 
-  // Marcar personaje como favorito
+  onPageChange(event: any): void {
+    this.pageIndex$.next(event.pageIndex);
+  }
+
   marcarFavorito(character: any): void {
     this.favoriteCharacter = character;
     this.favoriteSelected.emit(character);
@@ -120,7 +114,7 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy {
     this.characterSelected.emit(character);
   }
 
-  calculateTotals(): void {
+  private calculateTotals(): void {
     const speciesMap = this.dataSource.data.reduce((acc: any, character: any) => {
       acc[character.species] = (acc[character.species] || 0) + 1;
       return acc;

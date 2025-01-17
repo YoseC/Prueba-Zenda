@@ -12,7 +12,6 @@
   </mat-form-field>
 </div>
 
-
 <!-- Tabla de personajes -->
 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
@@ -79,4 +78,9 @@
 </table>
 
 <!-- Paginador -->
-<mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20]"></mat-paginator>
+<mat-paginator
+  [length]="totalCharacters"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="[5, 10, 20, 50]"
+  (page)="onPageChange($event)">
+</mat-paginator>
