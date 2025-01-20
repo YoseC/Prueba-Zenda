@@ -28,9 +28,10 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
     'favorito',
   ];
   dataSource = new MatTableDataSource<any>([]);
-  speciesCount: { key: string; value: number }[] = [];
-  totalCharacters = 0; // Total de personajes
-  pageSize = 5; // Tamaño de página
+  speciesCount = 0; // Total de especies
+  typeCount = 0; // Total de tipos
+  totalCharacters = 0;
+  pageSize = 5;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -38,21 +39,18 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
   constructor(private rickAndMortyService: RickAndMortyService) {}
 
   ngOnInit(): void {
-    // Cargar todos los personajes al inicio
     this.rickAndMortyService.getAllCharacters()
       .pipe(takeUntil(this.destroy$))
       .subscribe((characters) => {
-        this.dataSource.data = characters; // Asignar datos a la tabla
-        this.totalCharacters = characters.length; // Total de personajes
-        this.calculateTotals(); // Calcular totales
+        this.dataSource.data = characters;
+        this.totalCharacters = characters.length;
+        this.calculateTotals();
       });
 
-    // Configurar filtro personalizado
-    this.dataSource.filterPredicate = (data: any, filter: string) => {
-      const filters = filter.split('$');
-      const matchesName = filters[0] ? data.name.toLowerCase().includes(filters[0].toLowerCase()) : true;
-      const matchesSpecies = filters[1] ? data.species.toLowerCase().includes(filters[1].toLowerCase()) : true;
-      return matchesName && matchesSpecies;
+    this.dataSource.filterPredicate = (data, filter) => {
+      const [name, species] = filter.split('$');
+      return (!name || data.name.toLowerCase().includes(name.toLowerCase())) &&
+             (!species || data.species.toLowerCase().includes(species.toLowerCase()));
     };
   }
 
@@ -66,19 +64,16 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
     this.destroy$.complete();
   }
 
-  // Métodos para actualizar filtros
   applyNameFilter(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.updateFilter(input.value, this.speciesFilter);
+    this.updateFilter((event.target as HTMLInputElement).value, this.speciesFilter);
   }
 
   applySpeciesFilter(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.updateFilter(this.nameFilter, input.value);
+    this.updateFilter(this.nameFilter, (event.target as HTMLInputElement).value);
   }
 
-  private nameFilter: string = '';
-  private speciesFilter: string = '';
+  private nameFilter = '';
+  private speciesFilter = '';
 
   private updateFilter(nameFilter: string, speciesFilter: string): void {
     this.nameFilter = nameFilter;
@@ -103,13 +98,9 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   private calculateTotals(): void {
-    const speciesMap = this.dataSource.data.reduce((acc: any, character: any) => {
-      acc[character.species] = (acc[character.species] || 0) + 1;
-      return acc;
-    }, {});
-    this.speciesCount = Object.entries(speciesMap).map(([key, value]) => ({
-      key,
-      value: value as number,
-    }));
+    const speciesSet = new Set(this.dataSource.data.map(character => character.species));
+    const typeSet = new Set(this.dataSource.data.map(character => character.type));
+    this.speciesCount = speciesSet.size;
+    this.typeCount = typeSet.size;
   }
 }
