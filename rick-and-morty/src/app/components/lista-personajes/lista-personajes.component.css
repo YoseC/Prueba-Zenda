@@ -10,46 +10,33 @@ table {
 
 }
 
+
 th, td {
   padding: 8px;
   text-align: left;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Línea inferior semitransparente */
+  border-bottom: 1px solid rgba(192, 0, 0, 0.1); /* Línea inferior semitransparente */
 }
 
 th {
 
   color: #ffffff; /* Color del texto del encabezado */
   font-family: "Rubik Vinyl", serif;
-  font-size: 15px;
+  font-size: 25px;
   font-weight: bold;
+  text-align: center;
+  background-color: #8f476e !important;
 }
+
+
 
 td {
   background-color: #6699CC; /* Fondo semitransparente para las celdas */
   color: #ffffff; /* Color del texto de las celdas */
   font-weight: bold;
   font-size: 18px;
+  text-align: center; /* Alinea el texto al centro */
 
 }
-
-
-.favorite-icon {
-  color: red;
-}
-
-.details-button {
-  background-color: #cc9666;
-  padding: 10px 20px;
-  text-align: center;
-  margin: 10px 2px;
-  cursor: pointer;
-
-}
-
-.details-button:hover {
-  background-color: #8f6947;
-}
-
 .totals-container {
   margin-top: 20px;
   display: flex;
@@ -86,12 +73,15 @@ mat-card {
 .totals-card-2 mat-card-header {
   border-radius: 10px 10px 0 0; /* Bordes redondeados solo en la parte superior */
   text-align: center;
+  
 }
 
 .totals-card-2 mat-card-title {
   font-family: "Rubik Vinyl", serif;
+  font-weight: bold;
+  font-size: 20px;
   color: #0a0707; /* Color del texto del título */
-  text-align: center; /* Centra el texto del título */
+
 }
 
 .totals-card-2 mat-card-content {
