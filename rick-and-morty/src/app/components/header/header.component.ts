@@ -2,11 +2,17 @@ import { Component, OnInit, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FavoritosService } from '../../services/favoritos.service';
 import { FavoritoDialogComponent } from '../../favorito-dialog/favorito-dialog.component';
+import { MatToolbar } from '@angular/material/toolbar';
+import { NgIf } from '@angular/common';
 
-@Component({
+@Component( {
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css'],
+  styleUrls: [ './header.component.css' ],
+  imports: [
+    MatToolbar,
+    NgIf
+  ]
 })
 export class HeaderComponent implements OnInit {
   @Input() favoriteCharacter: any;

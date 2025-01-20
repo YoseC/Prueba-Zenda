@@ -41,10 +41,6 @@ lista-personajes {
   margin-right: 20px;
 }
 
-detalles-personajes {
-  flex: 1;
-}
-
 :host {
   display: block;
 /* background-image: url(https://wallpapers.com/images/hd/rick-and-morty-portal-zldslxft1dufbcia.jpg); */

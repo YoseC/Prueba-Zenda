@@ -1,10 +1,17 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { RickAndMortyService } from '../../services/rick-and-morty.service';
+import { MatCard, MatCardModule } from '@angular/material/card';
+import { DatePipe, NgIf } from '@angular/common';
 
-@Component({
+@Component( {
   selector: 'detalles-personajes',
   templateUrl: './detalles-personajes.component.html',
-  styleUrls: ['./detalles-personajes.component.css']
+  imports: [
+    MatCardModule,
+    NgIf,
+    DatePipe
+  ],
+  styleUrls: [ './detalles-personajes.component.css' ]
 })
 export class DetallesPersonajesComponent implements OnChanges {
   @Input() character: any;

@@ -1,10 +1,20 @@
 import { Component, Input } from '@angular/core';
 import { FavoritosService } from './services/favoritos.service';
+import { HeaderComponent } from './components/header/header.component';
+import { ListaPersonajesComponent } from './components/lista-personajes/lista-personajes.component';
+import { DetallesPersonajesComponent } from './components/detalles-personajes/detalles-personajes.component';
+import { NgIf } from '@angular/common';
 
-@Component({
+@Component( {
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  imports: [
+    HeaderComponent,
+    ListaPersonajesComponent,
+    DetallesPersonajesComponent,
+    NgIf
+  ],
+  styleUrls: [ './app.component.css' ]
 })
 export class AppComponent {
   @Input() favoriteCharacter: any;
