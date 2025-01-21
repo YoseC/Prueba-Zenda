@@ -6,16 +6,17 @@ import { RickAndMortyService } from '../../services/rick-and-morty.service';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil, tap } from 'rxjs';
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { DatePipe, NgIf } from '@angular/common';
+import { DatePipe, NgIf, CommonModule } from '@angular/common';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatSelectModule } from '@angular/material/select';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
-@Component( {
+@Component({
   selector: 'lista-personajes',
   templateUrl: './lista-personajes.component.html',
-  styleUrls: [ './lista-personajes.component.css' ],
+  styleUrls: ['./lista-personajes.component.css'],
   imports: [
     MatFormFieldModule,
     MatTableModule,
@@ -30,9 +31,11 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
     MatIcon,
     MatIconButton,
     NgIf,
+    CommonModule,
+    MatSelectModule,
     ReactiveFormsModule
   ]
-} )
+})
 export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject<void>();
 
@@ -50,57 +53,85 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
     'detalle',
     'favorito',
   ];
-  dataSource = new MatTableDataSource<any>( [] );
+  dataSource = new MatTableDataSource<any>([]);
   speciesCount = 0; // Total de especies
   typeCount = 0; // Total de tipos
   totalCharacters = 0;
   pageSize = 5;
+  genders: string[] = []; // Lista de géneros disponibles
 
-  @ViewChild( MatPaginator ) paginator!: MatPaginator;
-  @ViewChild( MatSort ) sort!: MatSort;
-  searchName = new FormControl( '' );
-  searchSpecies = new FormControl( '' );
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  searchName = new FormControl('');
+  searchSpecies = new FormControl('');
+  searchStatus = new FormControl('');
+  searchGender = new FormControl('');
 
-  constructor( private rickAndMortyService: RickAndMortyService ) {
-  }
+  constructor(private rickAndMortyService: RickAndMortyService) {}
 
   ngOnInit(): void {
     this.rickAndMortyService.getAllCharacters()
-    .pipe( takeUntil( this.destroy$ ) )
-    .subscribe( ( characters ) => {
-      this.dataSource.data = characters;
-      this.totalCharacters = characters.length;
-      this.calculateTotals();
-    } );
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((characters) => {
+        this.dataSource.data = characters;
+        this.totalCharacters = characters.length;
+        this.calculateTotals();
+      });
 
-    this.dataSource.filterPredicate = ( data, filter ) => {
-      const [ name, species ] = filter.split( '$' );
-      return ( !name || data.name.toLowerCase().includes( name.toLowerCase() ) ) &&
-        ( !species || data.species.toLowerCase().includes( species.toLowerCase() ) );
+      this.rickAndMortyService.getAllGenders()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((genders) => {
+        if (genders && genders.length > 0) {
+          this.genders = genders;
+        } else {
+          console.warn('No se encontraron géneros.');
+        }
+      }, (error) => {
+        console.error('Error al obtener los géneros:', error);
+      });
+    this.dataSource.filterPredicate = (data, filter) => {
+      const [name, species, status, gender] = filter.split('$');
+      return (!name || data.name.toLowerCase().includes(name.toLowerCase())) &&
+             (!species || data.species.toLowerCase().includes(species.toLowerCase())) &&
+             (!status || data.status.toLowerCase().includes(status.toLowerCase())) &&
+             (!gender || data.gender === gender);
     };
+
     this.searchName.valueChanges
-    .pipe(
-      takeUntil( this.destroy$ ),
-      debounceTime( 300 ),
-      distinctUntilChanged(),
-      tap( val => {
-        console.log( 'searchName', val );
-        this.updateFilter();
-      } )
-    )
-    .subscribe();
+      .pipe(
+        takeUntil(this.destroy$),
+        debounceTime(300),
+        distinctUntilChanged(),
+        tap(() => this.updateFilter())
+      )
+      .subscribe();
 
     this.searchSpecies.valueChanges
-    .pipe(
-      takeUntil( this.destroy$ ),
-      debounceTime( 300 ),
-      distinctUntilChanged(),
-      tap( val => {
-        console.log( 'searchSpecies', val );
-        this.updateFilter();
-      } )
-    )
-    .subscribe()
+      .pipe(
+        takeUntil(this.destroy$),
+        debounceTime(300),
+        distinctUntilChanged(),
+        tap(() => this.updateFilter())
+      )
+      .subscribe();
+
+    this.searchStatus.valueChanges
+      .pipe(
+        takeUntil(this.destroy$),
+        debounceTime(300),
+        distinctUntilChanged(),
+        tap(() => this.updateFilter())
+      )
+      .subscribe();
+
+    this.searchGender.valueChanges
+      .pipe(
+        takeUntil(this.destroy$),
+        debounceTime(300),
+        distinctUntilChanged(),
+        tap(() => this.updateFilter())
+      )
+      .subscribe();
   }
 
   ngAfterViewInit() {
@@ -113,30 +144,29 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
     this.destroy$.complete();
   }
 
-
   private updateFilter(): void {
-    this.dataSource.filter = `${ this.searchName.value || '' }$${ this.searchSpecies.value || '' }`;
-    if ( this.dataSource.paginator ) {
+    this.dataSource.filter = `${this.searchName.value || ''}$${this.searchSpecies.value || ''}$${this.searchStatus.value || ''}$${this.searchGender.value || ''}`;
+    if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
   }
 
-  marcarFavorito( character: any ): void {
+  marcarFavorito(character: any): void {
     this.favoriteCharacter = character;
-    this.favoriteSelected.emit( character );
+    this.favoriteSelected.emit(character);
   }
 
-  esFavorito( character: any ): boolean {
+  esFavorito(character: any): boolean {
     return this.favoriteCharacter?.id === character.id;
   }
 
-  verDetalles( character: any ): void {
-    this.characterSelected.emit( character );
+  verDetalles(character: any): void {
+    this.characterSelected.emit(character);
   }
 
   private calculateTotals(): void {
-    const speciesSet = new Set( this.dataSource.data.map( character => character.species ) );
-    const typeSet = new Set( this.dataSource.data.map( character => character.type ) );
+    const speciesSet = new Set(this.dataSource.data.map(character => character.species));
+    const typeSet = new Set(this.dataSource.data.map(character => character.type));
     this.speciesCount = speciesSet.size;
     this.typeCount = typeSet.size;
   }

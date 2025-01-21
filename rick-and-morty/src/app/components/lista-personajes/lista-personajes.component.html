@@ -10,6 +10,19 @@
     <mat-label>Buscar por especie</mat-label>
     <input matInput [formControl]="searchSpecies" placeholder="Human, Alien..."/>
   </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Buscar por estado</mat-label>
+    <input matInput [formControl]="searchStatus" placeholder="Alive, Dead..."/>
+  </mat-form-field>
+
+  <!-- Campo de búsqueda por género -->
+  <mat-form-field appearance="fill">
+    <mat-label>Buscar por género</mat-label>
+    <mat-select [formControl]="searchGender">
+      <mat-option *ngFor="let gender of genders" [value]="gender">{{ gender }}</mat-option>
+    </mat-select>
+  </mat-form-field>
 </div>
 
 <!-- Tabla de personajes -->

@@ -52,6 +52,12 @@ export class RickAndMortyService {
       })
     );
   }
+ // Obtener todos los géneros únicos
+ getAllGenders(): Observable<string[]> {
+  return this.getAllCharacters().pipe(
+    map(characters => [...new Set(characters.map(character => character.gender))])
+  );
+}
 
   getEpisodes(): Observable<any> {
     return this.http.get<any>(this.apiUrlEpisode).pipe(
