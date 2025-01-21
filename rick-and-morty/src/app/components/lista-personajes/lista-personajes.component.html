@@ -11,10 +11,13 @@
     <input matInput [formControl]="searchSpecies" placeholder="Human, Alien..."/>
   </mat-form-field>
 
-  <mat-form-field appearance="fill">
-    <mat-label>Buscar por estado</mat-label>
-    <input matInput [formControl]="searchStatus" placeholder="Alive, Dead..."/>
-  </mat-form-field>
+<!-- Campo de búsqueda por estado -->
+<mat-form-field appearance="fill">
+  <mat-label>Buscar por estado</mat-label>
+  <mat-select [formControl]="searchStatus">
+    <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
+  </mat-select>
+</mat-form-field>
 
   <!-- Campo de búsqueda por género -->
   <mat-form-field appearance="fill">

@@ -59,6 +59,7 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
   totalCharacters = 0;
   pageSize = 5;
   genders: string[] = []; // Lista de géneros disponibles
+  statuses: string[] = ['Alive', 'Dead', 'unknown']; // Lista de estados disponibles
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -76,18 +77,8 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
         this.dataSource.data = characters;
         this.totalCharacters = characters.length;
         this.calculateTotals();
+        this.calculateGenders(characters);
       });
-
-      this.rickAndMortyService.getAllGenders()
-      .pipe(
-        takeUntil(this.destroy$),
-        tap(genders => this.genders = genders.length ? genders : []),
-        tap(genders => !genders.length && console.warn('No se encontraron géneros.'))
-      )
-      .subscribe({
-        error: error => console.error('Error al obtener los géneros:', error)
-      });
-
 
     this.dataSource.filterPredicate = (data, filter) => {
       const [name, species, status, gender] = filter.split('$');
@@ -115,7 +106,7 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
       )
       .subscribe();
 
-    this.searchStatus.valueChanges
+      this.searchStatus.valueChanges
       .pipe(
         takeUntil(this.destroy$),
         debounceTime(300),
@@ -169,5 +160,12 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
     const typeSet = new Set(this.dataSource.data.map(character => character.type));
     this.speciesCount = speciesSet.size;
     this.typeCount = typeSet.size;
+ }
+
+  private calculateGenders(characters: any[]): void {
+    this.genders = [...new Set(characters.map(character => character.gender))];
+    if (!this.genders.length) {
+      console.log('No se encontraron géneros.');
+    }
   }
 }
