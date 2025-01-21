@@ -79,16 +79,16 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
       });
 
       this.rickAndMortyService.getAllGenders()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((genders) => {
-        if (genders && genders.length > 0) {
-          this.genders = genders;
-        } else {
-          console.warn('No se encontraron géneros.');
-        }
-      }, (error) => {
-        console.error('Error al obtener los géneros:', error);
+      .pipe(
+        takeUntil(this.destroy$),
+        tap(genders => this.genders = genders.length ? genders : []),
+        tap(genders => !genders.length && console.warn('No se encontraron géneros.'))
+      )
+      .subscribe({
+        error: error => console.error('Error al obtener los géneros:', error)
       });
+
+
     this.dataSource.filterPredicate = (data, filter) => {
       const [name, species, status, gender] = filter.split('$');
       return (!name || data.name.toLowerCase().includes(name.toLowerCase())) &&
