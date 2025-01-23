@@ -14,13 +14,12 @@ export class RickAndMortyService {
 
   constructor(private http: HttpClient) {}
 
-  // Obtener la lista de personajes (por página)
-  getCharacters(page: number): Observable<any[]> {
+  getCharacters(page: number, pageSize: number = 200): Observable<any[]> {
     if (this.cache.has(page)) {
       return of(this.cache.get(page)!); // Retorna la página cacheada
     }
 
-    return this.http.get<any>(`${this.apiUrl}?page=${page}`).pipe(
+    return this.http.get<any>(`${this.apiUrl}?page=${page}&pageSize=${pageSize}`).pipe(
       tap((response) => {
         if (response && response.results) {
           this.cache.set(page, response.results); // Cachea solo si la respuesta es válida
@@ -52,12 +51,20 @@ export class RickAndMortyService {
       })
     );
   }
- // Obtener todos los géneros únicos
- getAllGenders(): Observable<string[]> {
-  return this.getAllCharacters().pipe(
-    map(characters => [...new Set(characters.map(character => character.gender))])
-  );
-}
+
+  // Obtener todos los géneros únicos
+  getAllGenders(): Observable<string[]> {
+    return this.getAllCharacters().pipe(
+      map(characters => [...new Set(characters.map(character => character.gender))])
+    );
+  }
+
+  // Obtener todos los estados únicos
+  getAllStatuses(): Observable<string[]> {
+    return this.getAllCharacters().pipe(
+      map(characters => [...new Set(characters.map(character => character.status))])
+    );
+  }
 
   getEpisodes(): Observable<any> {
     return this.http.get<any>(this.apiUrlEpisode).pipe(

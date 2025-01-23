@@ -53,13 +53,15 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
     'detalle',
     'favorito',
   ];
+  items: any[] = [];
+  itemsFiltered: any[] = [];
   dataSource = new MatTableDataSource<any>([]);
   speciesCount = 0; // Total de especies
   typeCount = 0; // Total de tipos
   totalCharacters = 0;
-  pageSize = 5;
+  pageSize = 200;
   genders: string[] = []; // Lista de géneros disponibles
-  statuses: string[] = ['Alive', 'Dead', 'unknown']; // Lista de estados disponibles
+  statuses: string[] = []; // Lista de estados disponibles
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -74,19 +76,10 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
     this.rickAndMortyService.getAllCharacters()
       .pipe(takeUntil(this.destroy$))
       .subscribe((characters) => {
-        this.dataSource.data = characters;
+        this.items = characters;
         this.totalCharacters = characters.length;
-        this.calculateTotals();
-        this.calculateGenders(characters);
+        this.updateFilter();
       });
-
-    this.dataSource.filterPredicate = (data, filter) => {
-      const [name, species, status, gender] = filter.split('$');
-      return (!name || data.name.toLowerCase().includes(name.toLowerCase())) &&
-             (!species || data.species.toLowerCase().includes(species.toLowerCase())) &&
-             (!status || data.status.toLowerCase().includes(status.toLowerCase())) &&
-             (!gender || data.gender === gender);
-    };
 
     this.searchName.valueChanges
       .pipe(
@@ -106,7 +99,7 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
       )
       .subscribe();
 
-      this.searchStatus.valueChanges
+    this.searchStatus.valueChanges
       .pipe(
         takeUntil(this.destroy$),
         debounceTime(300),
@@ -136,7 +129,23 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   private updateFilter(): void {
-    this.dataSource.filter = `${this.searchName.value || ''}$${this.searchSpecies.value || ''}$${this.searchStatus.value || ''}$${this.searchGender.value || ''}`;
+    const name = this.searchName.value?.toLowerCase() || '';
+    const species = this.searchSpecies.value?.toLowerCase() || '';
+    const status = this.searchStatus.value || '';
+    const gender = this.searchGender.value || '';
+
+    this.itemsFiltered = this.items.filter(character =>
+      (!name || character.name.toLowerCase().includes(name)) &&
+      (!species || character.species.toLowerCase().includes(species)) &&
+      (!status || status === 'todo' || character.status === status) &&
+      (!gender || gender === 'todo' || character.gender === gender)
+    );
+
+    this.dataSource.data = this.itemsFiltered;
+    this.calculateTotals();
+    this.calculateGenders(this.itemsFiltered);
+    this.calculateStatuses(this.itemsFiltered);
+
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
@@ -156,16 +165,23 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   private calculateTotals(): void {
-    const speciesSet = new Set(this.dataSource.data.map(character => character.species));
-    const typeSet = new Set(this.dataSource.data.map(character => character.type));
+    const speciesSet = new Set(this.itemsFiltered.map(character => character.species));
+    const typeSet = new Set(this.itemsFiltered.map(character => character.type));
     this.speciesCount = speciesSet.size;
     this.typeCount = typeSet.size;
- }
+  }
 
   private calculateGenders(characters: any[]): void {
     this.genders = [...new Set(characters.map(character => character.gender))];
     if (!this.genders.length) {
       console.log('No se encontraron géneros.');
+    }
+  }
+
+  private calculateStatuses(characters: any[]): void {
+    this.statuses = [...new Set(characters.map(character => character.status))];
+    if (!this.statuses.length) {
+      console.log('No se encontraron estados.');
     }
   }
 }
