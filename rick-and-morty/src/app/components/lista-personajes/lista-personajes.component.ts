@@ -154,6 +154,8 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
   marcarFavorito(character: any): void {
     this.favoriteCharacter = character;
     this.favoriteSelected.emit(character);
+    character.isFavorite = !character.isFavorite;
+
   }
 
   esFavorito(character: any): boolean {
