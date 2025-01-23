@@ -173,17 +173,19 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
     this.typeCount = typeSet.size;
   }
 
-  private calculateGenders(characters: any[]): void {
-    this.genders = [...new Set(characters.map(character => character.gender))];
-    if (!this.genders.length) {
-      console.log('No se encontraron géneros.');
+  private calculateUniqueValues(characters: any[], key: string): string[] {
+    const uniqueValues = [...new Set(characters.map(character => character[key]))];
+    if (!uniqueValues.length) {
+      console.log(`No se encontraron valores únicos para ${key}.`);
     }
+    return uniqueValues;
+  }
+
+  private calculateGenders(characters: any[]): void {
+    this.genders = this.calculateUniqueValues(characters, 'gender');
   }
 
   private calculateStatuses(characters: any[]): void {
-    this.statuses = [...new Set(characters.map(character => character.status))];
-    if (!this.statuses.length) {
-      console.log('No se encontraron estados.');
-    }
+    this.statuses = this.calculateUniqueValues(characters, 'status');
   }
 }
