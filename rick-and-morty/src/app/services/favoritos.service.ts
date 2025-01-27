@@ -12,5 +12,8 @@ export class FavoritosService {
   setFavorito(personaje: any): void {
     this.favoritoSubject.next(personaje); // Emite un nuevo favorito
   }
+  getFavorito(): any {
+    return this.favoritoSubject.value;
+  }
 }
 

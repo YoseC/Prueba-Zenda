@@ -1,9 +1,17 @@
 <mat-toolbar>
-  <span class="header-title">Rick & Morty</span>
+  <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with menu icon">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span class="header-title">Rick and Morty</span>
+  <span class="example-spacer"></span>
 
-  <div *ngIf="favorito" class="favorito mouse" (click)="mostrarInfoFavorito()">
-    <span class="fondo">Favorito: {{ favorito.name }}</span>
-    <img [src]="favorito.image" alt="{{ favorito.name }}" class="favorito-img" />
-    <!-- <button mat-button (click)="mostrarInfoFavorito()">Mostrar Info</button> -->
-  </div>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item [routerLink]="'/lista-personajes'">Lista de Personajes</button>
+    <button mat-menu-item [routerLink]="'/detalles-personajes/1'">Detalles de Personaje</button>
+  </mat-menu>
+
+  <button mat-icon-button aria-label="Favorito" *ngIf="favorito" (click)="mostrarInfoFavorito()">
+    <mat-icon>favorite</mat-icon>
+    <span>{{ favorito?.name }}</span>
+  </button>
 </mat-toolbar>

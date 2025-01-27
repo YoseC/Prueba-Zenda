@@ -2,7 +2,11 @@ import { Component, OnInit, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FavoritosService } from '../../services/favoritos.service';
 import { FavoritoDialogComponent } from '../../favorito-dialog/favorito-dialog.component';
-import { MatToolbar } from '@angular/material/toolbar';
+import { MatToolbar, MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { RouterModule } from '@angular/router';
 import { NgIf } from '@angular/common';
 
 @Component( {
@@ -11,7 +15,11 @@ import { NgIf } from '@angular/common';
   styleUrls: [ './header.component.css' ],
   imports: [
     MatToolbar,
-    NgIf
+    NgIf,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    RouterModule
   ]
 })
 export class HeaderComponent implements OnInit {

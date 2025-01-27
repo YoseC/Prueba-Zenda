@@ -3,6 +3,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatHeaderCell, MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { RickAndMortyService } from '../../services/rick-and-morty.service';
+import { FavoritosService } from '../../services/favoritos.service';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil, tap } from 'rxjs';
 import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -11,6 +12,7 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
+import { Router, RouterModule } from '@angular/router';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
@@ -33,7 +35,8 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
     NgIf,
     CommonModule,
     MatSelectModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    RouterModule
   ]
 })
 export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -70,7 +73,8 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
   searchStatus = new FormControl('');
   searchGender = new FormControl('');
 
-  constructor(private rickAndMortyService: RickAndMortyService) {}
+
+  constructor(private rickAndMortyService: RickAndMortyService, private router: Router, private FavoritosService: FavoritosService ) {}
 
   ngOnInit(): void {
     this.rickAndMortyService.getAllCharacters()
@@ -152,10 +156,9 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   marcarFavorito(character: any): void {
-    this.favoriteCharacter = character;
+    this.FavoritosService.setFavorito(character);  // Actualiza en el servicio
     this.favoriteSelected.emit(character);
     character.isFavorite = !character.isFavorite;
-
   }
 
   esFavorito(character: any): boolean {
@@ -164,6 +167,7 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
 
   verDetalles(character: any): void {
     this.characterSelected.emit(character);
+    this.router.navigate(['/detalles-personajes', character.id]);
   }
 
   private calculateTotals(): void {

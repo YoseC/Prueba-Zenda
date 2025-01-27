@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { RickAndMortyService } from '../../services/rick-and-morty.service';
 import { MatCard, MatCardModule } from '@angular/material/card';
 import { DatePipe, NgIf } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component( {
   selector: 'detalles-personajes',
@@ -20,7 +21,23 @@ export class DetallesPersonajesComponent implements OnChanges {
   location: any;
   episode: any;
 
-  constructor(private rickAndMortyService: RickAndMortyService) {}
+  constructor(private rickAndMortyService: RickAndMortyService, private route: ActivatedRoute ) {}
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.loadCharacterDetails(id);
+      }
+    });
+  }
+
+  loadCharacterDetails(id: string): void {
+    this.rickAndMortyService.getCharacter(Number(id)).subscribe(character => {
+      this.character = character;
+      this.loadAdditionalInfo();
+    });
+  }
+
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['character'] && this['character']) {
