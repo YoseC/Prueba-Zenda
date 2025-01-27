@@ -1,17 +1,35 @@
 <mat-toolbar>
-  <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with menu icon">
-    <mat-icon>menu</mat-icon>
-  </button>
-  <span class="header-title">Rick and Morty</span>
-  <span class="example-spacer"></span>
+  <div>
+    <button
+      mat-icon-button
+      [matMenuTriggerFor]="menu"
+      aria-label="Example icon-button with menu icon"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+  </div>
+  <div>
+    <span class="header-title">Rick and Morty</span>
+    <span class="example-spacer"></span>
+  </div>
 
   <mat-menu #menu="matMenu">
-    <button mat-menu-item [routerLink]="'/lista-personajes'">Lista de Personajes</button>
-    <button mat-menu-item [routerLink]="'/detalles-personajes/1'">Detalles de Personaje</button>
+    <button mat-menu-item [routerLink]="'/lista-personajes'">
+      Lista de Personajes
+    </button>
+    <button mat-menu-item [routerLink]="'/detalles-personajes/1'">
+      Detalles de Personaje
+    </button>
   </mat-menu>
-
-  <button mat-icon-button aria-label="Favorito" *ngIf="favorito" (click)="mostrarInfoFavorito()">
-    <mat-icon>favorite</mat-icon>
-    <span>{{ favorito?.name }}</span>
-  </button>
+  <div>
+    <button
+      mat-icon-button
+      aria-label="Favorito"
+      *ngIf="favorito"
+      (click)="mostrarInfoFavorito()"
+    >
+      <mat-icon>favorite</mat-icon>
+      <span>{{ favorito?.name }}</span>
+    </button>
+  </div>
 </mat-toolbar>

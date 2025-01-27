@@ -13,11 +13,7 @@ import { FavoritoDialogComponent } from './favorito-dialog/favorito-dialog.compo
   templateUrl: './app.component.html',
   imports: [
     HeaderComponent,
-    DashboardComponent,
-    FavoritoDialogComponent,
-    ListaPersonajesComponent,
-    DetallesPersonajesComponent,
-    NgIf,
+   
     RouterModule,
   ],
   standalone: true,

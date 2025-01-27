@@ -50,10 +50,13 @@ mat-toolbar {
 
 mat-icon-button {
   color: white; /* Color de los iconos */
-  
+
 
 }
 
 mat-icon-button:hover {
   background-color: rgba(255, 255, 255, 0.1); /* Fondo semitransparente al pasar el ratón */
 }
+
+
+
