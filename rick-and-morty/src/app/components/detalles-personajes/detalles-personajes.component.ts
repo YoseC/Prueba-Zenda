@@ -1,81 +1,92 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, signal, effect } from '@angular/core';
 import { RickAndMortyService } from '../../services/rick-and-morty.service';
 import { MatCard, MatCardModule } from '@angular/material/card';
 import { DatePipe, NgIf } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 
-@Component( {
+@Component({
   selector: 'detalles-personajes',
   templateUrl: './detalles-personajes.component.html',
-  imports: [
-    MatCardModule,
+  styleUrls: ['./detalles-personajes.component.css'],
+  imports: [MatCardModule,
+    MatCard,
     NgIf,
-    DatePipe
-  ],
-  styleUrls: [ './detalles-personajes.component.css' ]
+    DatePipe],
 })
-export class DetallesPersonajesComponent implements OnChanges {
-  @Input() character: any;
-  origin: any;
-  originResident: any;
-  location: any;
-  episode: any;
+export class DetallesPersonajesComponent {
+  // Signals para manejar los datos de manera reactiva
+  character = signal<any>(null);
+  origin = signal<any>({ name: 'Desconocido', residents: [] });
+  originResident = signal<any>({ name: 'No tiene residentes' });
+  location = signal<any>({ name: 'Desconocido', residents: [] });
+  episode = signal<any>({ name: 'No tiene episodios' });
+  id = signal<string | null>(null); // Signal para almacenar el ID de la URL
 
-  constructor(private rickAndMortyService: RickAndMortyService, private route: ActivatedRoute ) {}
-  ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.loadCharacterDetails(id);
+  constructor(
+    private rickAndMortyService: RickAndMortyService,
+    private route: ActivatedRoute
+  ) {
+    // Efecto para detectar cambios en la URL y cargar los datos
+    effect(() => {
+      const newId = this.route.snapshot.paramMap.get('id');
+      if (newId && this.id() !== newId) {
+        this.id.set(newId);
+        this.loadCharacterDetails(newId);
       }
     });
   }
 
   loadCharacterDetails(id: string): void {
-    this.rickAndMortyService.getCharacter(Number(id)).subscribe(character => {
-      this.character = character;
+    this.rickAndMortyService.getCharacter(Number(id)).subscribe((character) => {
+      this.character.set(character);
       this.loadAdditionalInfo();
     });
   }
 
+  loadAdditionalInfo(): void {
+    const character = this.character();
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['character'] && this['character']) {
-      this.loadAdditionalInfo();
-    }
-  }
-
-  loadAdditionalInfo() {
-    if (this['character'].origin.url) {
-      this.rickAndMortyService.getLocation(this['character'].origin.url.split('/').pop()).subscribe((data) => {
-        this.origin = data;
-        if (this.origin.residents.length > 0) {
-          this.rickAndMortyService.getCharacter(this.origin.residents[0].split('/').pop()).subscribe((resident) => {
-            this.originResident = resident;
-          });
-        } else {
-          this.originResident = { name: 'No tiene residentes' };
-        }
-      });
+    // Cargar ubicación de origen
+    if (character?.origin?.url) {
+      this.rickAndMortyService
+        .getLocation(character.origin.url.split('/').pop())
+        .subscribe((data) => {
+          this.origin.set(data);
+          if (data.residents.length > 0) {
+            const residentId = data.residents[0].split('/').pop();
+            if (residentId) {
+              this.rickAndMortyService
+                .getCharacter(residentId)
+                .subscribe((resident) => this.originResident.set(resident));
+            }
+          } else {
+            this.originResident.set({ name: 'No tiene residentes' });
+          }
+        });
     } else {
-      this.origin = { name: 'Desconocido', residents: [] };
-      this.originResident = { name: 'No tiene residentes' };
-    }
-
-    if (this['character'].location.url) {
-      this.rickAndMortyService.getLocation(this['character'].location.url.split('/').pop()).subscribe((data) => {
-        this.location = data;
-      });
-    } else {
-      this.location = { name: 'Desconocido', residents: [] };
+      this.origin.set({ name: 'Desconocido', residents: [] });
+      this.originResident.set({ name: 'No tiene residentes' });
     }
 
-    if (this['character'].episode.length > 0) {
-      this.rickAndMortyService.getEpisode(this['character'].episode[0].split('/').pop()).subscribe((data) => {
-        this.episode = data;
-      });
+    // Cargar ubicación actual
+    if (character?.location?.url) {
+      this.rickAndMortyService
+        .getLocation(character.location.url.split('/').pop())
+        .subscribe((data) => this.location.set(data));
     } else {
-      this.episode = { name: 'No tiene episodios' };
+      this.location.set({ name: 'Desconocido', residents: [] });
+    }
+
+    // Cargar primer episodio
+    if (character?.episode?.length > 0) {
+      const episodeId = character.episode[0].split('/').pop();
+      if (episodeId) {
+        this.rickAndMortyService
+          .getEpisode(episodeId)
+          .subscribe((data) => this.episode.set(data));
+      }
+    } else {
+      this.episode.set({ name: 'No tiene episodios' });
     }
   }
 }

@@ -1,39 +1,39 @@
 <div class="details-card">
-  <mat-card *ngIf="character">
+  <mat-card *ngIf="character()">
     <!-- Imagen del personaje -->
     <img
       mat-card-image
-      [src]="character.image"
+      [src]="character()?.image"
       class="icon"
-      [alt]="character.name"
+      [alt]="character()?.name"
     />
 
     <!-- Nombre y subtítulo -->
-    <mat-card-title>{{ character.name }}</mat-card-title>
-    <mat-card-subtitle
-      >{{ character.species }} - {{ character.status }}</mat-card-subtitle
-    >
+    <mat-card-title>{{ character()?.name }}</mat-card-title>
+    <mat-card-subtitle>
+      {{ character()?.species }} - {{ character()?.status }}
+    </mat-card-subtitle>
 
     <!-- Contenido del card -->
     <mat-card-content>
       <!-- Género -->
-      <p><strong>Género:</strong> {{ character.gender }}</p>
+      <p><strong>Género:</strong> {{ character()?.gender }}</p>
 
       <!-- Tipo (con valor predeterminado) -->
-      <p><strong>Tipo:</strong> {{ character.type || "no especificado" }}</p>
+      <p><strong>Tipo:</strong> {{ character()?.type || 'no especificado' }}</p>
 
       <!-- Fecha de creación -->
-      <p><strong>Creado:</strong> {{ character.created | date }}</p>
+      <p><strong>Creado:</strong> {{ character()?.created | date }}</p>
 
       <!-- Origen -->
-      <p><strong>Origen:</strong> {{ origin?.name }}</p>
+      <p><strong>Origen:</strong> {{ origin()?.name }}</p>
       <hr />
 
       <!-- Locación -->
-      <p><strong>Locación:</strong> {{ location?.name }}</p>
-      <p *ngIf="location?.residents?.length; else noResidents">
+      <p><strong>Locación:</strong> {{ location()?.name }}</p>
+      <p *ngIf="location()?.residents?.length > 0; else noResidents">
         <strong>Residente de esta Locación:</strong>
-        {{ location.residents[0].name }}
+        {{ originResident()?.name }}
       </p>
       <ng-template #noResidents>
         <p><strong>Residente de esta Locación:</strong> No tiene residentes</p>
@@ -41,11 +41,11 @@
       <hr />
 
       <!-- Episodio -->
-      <p><strong>Episodio:</strong> {{ episode?.name }}</p>
-      <p *ngIf="episode">
-        <strong>Fecha de emisión:</strong> {{ episode.air_date }}
+      <p><strong>Episodio:</strong> {{ episode()?.name }}</p>
+      <p *ngIf="episode()">
+        <strong>Fecha de emisión:</strong> {{ episode()?.air_date }}
       </p>
-      <p *ngIf="episode"><strong>Temporada:</strong> {{ episode.episode }}</p>
+      <p *ngIf="episode()"><strong>Temporada:</strong> {{ episode()?.episode }}</p>
     </mat-card-content>
   </mat-card>
 </div>
