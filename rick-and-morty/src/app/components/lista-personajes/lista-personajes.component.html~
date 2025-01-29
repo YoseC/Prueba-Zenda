@@ -106,7 +106,7 @@
 <mat-paginator
   [length]="totalCharacters"
   [pageSize]="pageSize"
-  [pageSizeOptions]="[5, 10, 25, 50]">
+  [pageSizeOptions]="[200, 400, 600, 800]">
 </mat-paginator>
 
 <!-- Totales -->

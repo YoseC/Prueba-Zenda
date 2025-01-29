@@ -32,7 +32,7 @@ export class DetallesPersonajesComponent {
       // const newId = this.route.snapshot.paramMap.get('id');
       // if (newId && this.id() !== newId) {
       //   this.id.set(newId);
-       this.loadCharacterDetails(this.id());
+        this.loadCharacterDetails(this.id());
       // }
     });
   }

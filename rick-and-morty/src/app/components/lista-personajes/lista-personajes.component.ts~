@@ -62,7 +62,7 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
   speciesCount = 0; // Total de especies
   typeCount = 0; // Total de tipos
   totalCharacters = 0;
-  pageSize = 5;
+  pageSize = 200;
   genders: string[] = []; // Lista de géneros disponibles
   statuses: string[] = []; // Lista de estados disponibles
 
