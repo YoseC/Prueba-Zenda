@@ -14,6 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterModule } from '@angular/router';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Character } from '../../interfaces/character.interface';
 
 @Component({
   selector: 'lista-personajes',
@@ -60,7 +61,7 @@ export class ListaPersonajesComponent {
 
   // ✅ Ahora `items` es un Signal reactivo
   // ✅ Signal para manejar los personajes
-  items = signal<any[]>([]);
+  items = signal<Character[]>([]);
 
   // ✅ Filtros como FormControl
   searchName = new FormControl('');
@@ -126,19 +127,19 @@ export class ListaPersonajesComponent {
   statuses = computed(() => [...new Set(this.itemsFiltered().map(c => c.status))]);
 
   // ✅ Método `marcarFavorito()`
-  marcarFavorito(character: any): void {
+  marcarFavorito(character: Character): void {
     this.favoritosService.setFavorito(character);
     this.favoriteSelected.emit(character);
     character.isFavorite = !character.isFavorite;
   }
 
   // ✅ Método `esFavorito()`
-  esFavorito(character: any): boolean {
+  esFavorito(character: Character): boolean {
     return this.favoriteCharacter?.id === character.id;
   }
 
   // ✅ Método `verDetalles()`
-  verDetalles(character: any): void {
+  verDetalles(character: Character): void {
     this.characterSelected.emit(character);
     this.router.navigate(['/detalles-personajes', character.id]);
   }
