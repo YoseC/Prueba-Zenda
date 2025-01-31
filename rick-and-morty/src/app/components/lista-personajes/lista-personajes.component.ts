@@ -59,21 +59,50 @@ export class ListaPersonajesComponent {
   ];
 
   // ✅ Ahora `items` es un Signal reactivo
+  // ✅ Signal para manejar los personajes
   items = signal<any[]>([]);
 
-  // ✅ Filtros como Signals (antes eran `FormControl`)
-  searchName = signal<string>('');
-  searchSpecies = signal<string>('');
-  searchStatus = signal<string>('');
-  searchGender = signal<string>('');
+  // ✅ Filtros como FormControl
+  searchName = new FormControl('');
+  searchSpecies = new FormControl('');
+  searchStatus = new FormControl('todo');
+  searchGender = new FormControl('todo');
 
-  // ✅ Filtrado reactivo con `computed()`
+  // ✅ Signals sincronizados con los filtros
+  searchNameSignal = signal(this.searchName.value ?? '');
+  searchSpeciesSignal = signal(this.searchSpecies.value ?? '');
+  searchStatusSignal = signal(this.searchStatus.value ?? 'todo');
+  searchGenderSignal = signal(this.searchGender.value ?? 'todo');
+  pageSize = signal<number>(10);
+
+  constructor(
+    private rickAndMortyService: RickAndMortyService,
+    private router: Router,
+    private favoritosService: FavoritosService
+  ) {
+    // ✅ Sincroniza los FormControls con Signals automáticamente
+    effect(() => {
+      this.searchName.valueChanges.subscribe(value => this.searchNameSignal.set(value?.trim() ?? ''));
+      this.searchSpecies.valueChanges.subscribe(value => this.searchSpeciesSignal.set(value?.trim() ?? ''));
+      this.searchStatus.valueChanges.subscribe(value => this.searchStatusSignal.set(value ?? ''));
+      this.searchGender.valueChanges.subscribe(value => this.searchGenderSignal.set(value ?? ''));
+    });
+
+    // ✅ Carga automática de datos con `effect()`
+    effect(() => {
+      this.rickAndMortyService.getAllCharacters().subscribe((characters) => {
+        this.items.set(characters);
+      });
+    });
+  }
+
+  // ✅ Filtrado automático con `computed()`
   itemsFiltered = computed(() =>
     this.items().filter(character =>
-      (!this.searchName() || character.name.toLowerCase().includes(this.searchName().toLowerCase())) &&
-      (!this.searchSpecies() || character.species.toLowerCase().includes(this.searchSpecies().toLowerCase())) &&
-      (!this.searchStatus() || this.searchStatus() === 'todo' || character.status === this.searchStatus()) &&
-      (!this.searchGender() || this.searchGender() === 'todo' || character.gender === this.searchGender())
+      (!this.searchNameSignal() || character.name.toLowerCase().includes(this.searchNameSignal().toLowerCase())) &&
+      (!this.searchSpeciesSignal() || character.species.toLowerCase().includes(this.searchSpeciesSignal().toLowerCase())) &&
+      (!this.searchStatusSignal() || this.searchStatusSignal() === 'todo' || character.status === this.searchStatusSignal()) &&
+      (!this.searchGenderSignal() || this.searchGenderSignal() === 'todo' || character.gender === this.searchGenderSignal())
     )
   );
 
@@ -96,32 +125,19 @@ export class ListaPersonajesComponent {
   genders = computed(() => [...new Set(this.itemsFiltered().map(c => c.gender))]);
   statuses = computed(() => [...new Set(this.itemsFiltered().map(c => c.status))]);
 
-  constructor(
-    private rickAndMortyService: RickAndMortyService,
-    private router: Router,
-    private favoritosService: FavoritosService
-  ) {
-    // ✅ Carga automática de datos con `effect()`
-    effect(() => {
-      this.rickAndMortyService.getAllCharacters().subscribe((characters) => {
-        this.items.set(characters); // Actualiza el Signal reactivo
-      });
-    });
-  }
-
-  // ✅  método `marcarFavorito()`
+  // ✅ Método `marcarFavorito()`
   marcarFavorito(character: any): void {
     this.favoritosService.setFavorito(character);
     this.favoriteSelected.emit(character);
     character.isFavorite = !character.isFavorite;
   }
 
-  // ✅    método `esFavorito()`
+  // ✅ Método `esFavorito()`
   esFavorito(character: any): boolean {
     return this.favoriteCharacter?.id === character.id;
   }
 
-  // ✅   `verDetalles()`
+  // ✅ Método `verDetalles()`
   verDetalles(character: any): void {
     this.characterSelected.emit(character);
     this.router.navigate(['/detalles-personajes', character.id]);

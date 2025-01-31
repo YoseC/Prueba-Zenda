@@ -15,8 +15,8 @@
   <mat-form-field appearance="fill">
     <mat-label>Buscar por estado</mat-label>
     <mat-select [formControl]="searchStatus">
-      <mat-option value="todo">todo</mat-option>
-      <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
+      <mat-option value="">todo</mat-option>
+      <mat-option *ngFor="let status of statuses()" [value]="status">{{ status }}</mat-option>
     </mat-select>
   </mat-form-field>
 
@@ -24,14 +24,14 @@
   <mat-form-field appearance="fill">
     <mat-label>Buscar por género</mat-label>
     <mat-select [formControl]="searchGender">
-      <mat-option value="todo">todo</mat-option>
-      <mat-option *ngFor="let gender of genders" [value]="gender">{{ gender }}</mat-option>
+      <mat-option value="">todo</mat-option>
+      <mat-option *ngFor="let gender of genders()" [value]="gender">{{ gender }}</mat-option>
     </mat-select>
   </mat-form-field>
 </div>
 
 <!-- Tabla de personajes -->
-<table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+<table mat-table [dataSource]="dataSource()" matSort class="mat-elevation-z8">
 
   <!-- Columna: Nombre -->
   <ng-container matColumnDef="name">
@@ -104,7 +104,7 @@
 
 <!-- Paginador -->
 <mat-paginator
-  [length]="totalCharacters"
+  [length]="totalCharacters()"
   [pageSize]="pageSize"
   [pageSizeOptions]="[5, 10, 25, 50]">
 </mat-paginator>
@@ -116,7 +116,7 @@
       <mat-card-title>Totales por Especie</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <p>Total de especies: {{ speciesCount }}</p>
+      <p>Total de especies: {{ speciesCount() }}</p>
     </mat-card-content>
   </mat-card>
 
@@ -125,7 +125,7 @@
       <mat-card-title>Totales por Tipo</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <p>Total de tipos: {{ typeCount }}</p>
+      <p>Total de tipos: {{ typeCount() }}</p>
     </mat-card-content>
   </mat-card>
 </div>
