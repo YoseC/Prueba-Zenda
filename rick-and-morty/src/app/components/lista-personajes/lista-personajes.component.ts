@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit, signal, computed, effect } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatHeaderCell, MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -39,8 +39,9 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
     RouterModule
   ]
 })
-export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewInit {
-  private destroy$ = new Subject<void>();
+export class ListaPersonajesComponent {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   @Input() favoriteCharacter: any = null;
   @Output() favoriteSelected = new EventEmitter<any>();
@@ -56,140 +57,73 @@ export class ListaPersonajesComponent implements OnInit, OnDestroy, AfterViewIni
     'detalle',
     'favorito',
   ];
-  items: any[] = [];
-  itemsFiltered: any[] = [];
-  dataSource = new MatTableDataSource<any>([]);
-  speciesCount = 0; // Total de especies
-  typeCount = 0; // Total de tipos
-  totalCharacters = 0;
-  pageSize = 5;
-  genders: string[] = []; // Lista de géneros disponibles
-  statuses: string[] = []; // Lista de estados disponibles
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  searchName = new FormControl('');
-  searchSpecies = new FormControl('');
-  searchStatus = new FormControl('');
-  searchGender = new FormControl('');
+  // ✅ Ahora `items` es un Signal reactivo
+  items = signal<any[]>([]);
 
+  // ✅ Filtros como Signals (antes eran `FormControl`)
+  searchName = signal<string>('');
+  searchSpecies = signal<string>('');
+  searchStatus = signal<string>('');
+  searchGender = signal<string>('');
 
-  constructor(private rickAndMortyService: RickAndMortyService, private router: Router, private FavoritosService: FavoritosService ) {}
+  // ✅ Filtrado reactivo con `computed()`
+  itemsFiltered = computed(() =>
+    this.items().filter(character =>
+      (!this.searchName() || character.name.toLowerCase().includes(this.searchName().toLowerCase())) &&
+      (!this.searchSpecies() || character.species.toLowerCase().includes(this.searchSpecies().toLowerCase())) &&
+      (!this.searchStatus() || this.searchStatus() === 'todo' || character.status === this.searchStatus()) &&
+      (!this.searchGender() || this.searchGender() === 'todo' || character.gender === this.searchGender())
+    )
+  );
 
-  ngOnInit(): void {
-    this.rickAndMortyService.getAllCharacters()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((characters) => {
-        this.items = characters;
-        this.totalCharacters = characters.length;
-        this.updateFilter();
-      });
-
-    this.searchName.valueChanges
-      .pipe(
-        takeUntil(this.destroy$),
-        debounceTime(300),
-        distinctUntilChanged(),
-        tap(() => this.updateFilter())
-      )
-      .subscribe();
-
-    this.searchSpecies.valueChanges
-      .pipe(
-        takeUntil(this.destroy$),
-        debounceTime(300),
-        distinctUntilChanged(),
-        tap(() => this.updateFilter())
-      )
-      .subscribe();
-
-    this.searchStatus.valueChanges
-      .pipe(
-        takeUntil(this.destroy$),
-        debounceTime(300),
-        distinctUntilChanged(),
-        tap(() => this.updateFilter())
-      )
-      .subscribe();
-
-    this.searchGender.valueChanges
-      .pipe(
-        takeUntil(this.destroy$),
-        debounceTime(300),
-        distinctUntilChanged(),
-        tap(() => this.updateFilter())
-      )
-      .subscribe();
-  }
-
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private updateFilter(): void {
-    const name = this.searchName.value?.toLowerCase() || '';
-    const species = this.searchSpecies.value?.toLowerCase() || '';
-    const status = this.searchStatus.value || '';
-    const gender = this.searchGender.value || '';
-
-    this.itemsFiltered = this.items.filter(character =>
-      (!name || character.name.toLowerCase().includes(name)) &&
-      (!species || character.species.toLowerCase().includes(species)) &&
-      (!status || status === 'todo' || character.status === status) &&
-      (!gender || gender === 'todo' || character.gender === gender)
-    );
-
-    this.dataSource.data = this.itemsFiltered;
-    this.calculateTotals();
-    this.calculateGenders(this.itemsFiltered);
-    this.calculateStatuses(this.itemsFiltered);
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
+  // ✅ `MatTableDataSource` se actualiza automáticamente
+  dataSource = computed(() => {
+    const table = new MatTableDataSource(this.itemsFiltered());
+    if (this.paginator) {
+      table.paginator = this.paginator;
     }
+    if (this.sort) {
+      table.sort = this.sort;
+    }
+    return table;
+  });
+
+  // ✅ Contadores reactivos
+  speciesCount = computed(() => new Set(this.itemsFiltered().map(c => c.species)).size);
+  typeCount = computed(() => new Set(this.itemsFiltered().map(c => c.type)).size);
+  totalCharacters = computed(() => this.itemsFiltered().length);
+  genders = computed(() => [...new Set(this.itemsFiltered().map(c => c.gender))]);
+  statuses = computed(() => [...new Set(this.itemsFiltered().map(c => c.status))]);
+
+  constructor(
+    private rickAndMortyService: RickAndMortyService,
+    private router: Router,
+    private favoritosService: FavoritosService
+  ) {
+    // ✅ Carga automática de datos con `effect()`
+    effect(() => {
+      this.rickAndMortyService.getAllCharacters().subscribe((characters) => {
+        this.items.set(characters); // Actualiza el Signal reactivo
+      });
+    });
   }
 
+  // ✅  método `marcarFavorito()`
   marcarFavorito(character: any): void {
-    this.FavoritosService.setFavorito(character);  // Actualiza en el servicio
+    this.favoritosService.setFavorito(character);
     this.favoriteSelected.emit(character);
     character.isFavorite = !character.isFavorite;
   }
 
+  // ✅    método `esFavorito()`
   esFavorito(character: any): boolean {
     return this.favoriteCharacter?.id === character.id;
   }
 
+  // ✅   `verDetalles()`
   verDetalles(character: any): void {
     this.characterSelected.emit(character);
     this.router.navigate(['/detalles-personajes', character.id]);
-  }
-
-  private calculateTotals(): void {
-    const speciesSet = new Set(this.itemsFiltered.map(character => character.species));
-    const typeSet = new Set(this.itemsFiltered.map(character => character.type));
-    this.speciesCount = speciesSet.size;
-    this.typeCount = typeSet.size;
-  }
-
-  private calculateUniqueValues(characters: any[], key: string): string[] {
-    const uniqueValues = [...new Set(characters.map(character => character[key]))];
-    if (!uniqueValues.length) {
-      console.log(`No se encontraron valores únicos para ${key}.`);
-    }
-    return uniqueValues;
-  }
-
-  private calculateGenders(characters: any[]): void {
-    this.genders = this.calculateUniqueValues(characters, 'gender');
-  }
-
-  private calculateStatuses(characters: any[]): void {
-    this.statuses = this.calculateUniqueValues(characters, 'status');
   }
 }
