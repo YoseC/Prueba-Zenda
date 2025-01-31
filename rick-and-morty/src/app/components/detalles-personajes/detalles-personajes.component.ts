@@ -20,7 +20,7 @@ export class DetallesPersonajesComponent {
   originResident = signal<any>({ name: 'No tiene residentes' });
   location = signal<any>({ name: 'Desconocido', residents: [] });
   episode = signal<any>({ name: 'No tiene episodios' });
-  id = input<string | null>(null); // Signal para almacenar el ID de la URL
+  id = input<string | null>(null); // Signal para manejar el id del personaje
 
   constructor(
     private rickAndMortyService: RickAndMortyService,

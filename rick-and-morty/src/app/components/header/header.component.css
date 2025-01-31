@@ -2,6 +2,7 @@ mat-toolbar {
   height: 100px;
   display: flex;
   align-items: center;
+  justify-content: space-evenly;
   padding: 0 20px;
   border-radius: 8px;
   background-color: #6f79cc;
@@ -12,22 +13,40 @@ mat-toolbar {
   color: rgb(255, 255, 255);
   font-size: 30px;
   font-weight: bold;
+  margin-right: 20px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Añade sombra al texto para mejor visibilidad */
   font-family: "Permanent Marker", serif;
+
 }
 
-.example-spacer {
+
+
+
+.header-left {
   display: flex;
+  align-items: center;
 
 }
 
-.favorito {
+
+.header-menu {
+  display: flex;
+  gap: 10px;
+
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+/* .favorito {
   margin-left: auto;
   display: flex;
   align-items: center;
   gap: 10px;
   font-family: "Permanent Marker", serif;
-}
+} */
 
 .favorito:hover {
   background-color: #4e548f;
@@ -57,6 +76,13 @@ mat-icon-button {
 mat-icon-button:hover {
   background-color: rgba(255, 255, 255, 0.1); /* Fondo semitransparente al pasar el ratón */
 }
+
+
+
+.icon{
+  margin-right: 1px;
+}
+
 
 
 
