@@ -62,6 +62,8 @@ export class ListaPersonajesComponent {
   // ✅ Ahora `items` es un Signal reactivo
   // ✅ Signal para manejar los personajes
   items = signal<Character[]>([]);
+  pagesize = signal<number>(0);
+
 
   // ✅ Filtros como FormControl
   searchName = new FormControl('');
@@ -74,7 +76,7 @@ export class ListaPersonajesComponent {
   searchSpeciesSignal = signal(this.searchSpecies.value ?? '');
   searchStatusSignal = signal(this.searchStatus.value ?? 'todo');
   searchGenderSignal = signal(this.searchGender.value ?? 'todo');
-  pageSize = signal<number>(10);
+
 
   constructor(
     private rickAndMortyService: RickAndMortyService,
@@ -89,12 +91,13 @@ export class ListaPersonajesComponent {
       this.searchGender.valueChanges.subscribe(value => this.searchGenderSignal.set(value ?? ''));
     });
 
-    // ✅ Carga automática de datos con `effect()`
-    effect(() => {
-      this.rickAndMortyService.getAllCharacters().subscribe((characters) => {
-        this.items.set(characters);
-      });
+  // ✅ Carga automática de datos con `effect()`, usando caché y localStorage
+  effect(() => {
+    this.rickAndMortyService.getAllCharacters().subscribe((characters) => {
+      this.items.set(characters);
+      console.log('✅ Datos cargados en lista-personajes:', characters);
     });
+  });
   }
 
   // ✅ Filtrado automático con `computed()`
