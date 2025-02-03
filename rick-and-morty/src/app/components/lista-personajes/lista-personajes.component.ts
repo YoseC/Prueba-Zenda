@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit,signal, computed, effect, Signal } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatHeaderCell, MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -33,71 +33,94 @@ import { Character } from '../../interfaces/character.interface';
     MatButton,
     MatIcon,
     MatIconButton,
-    NgIf,
+
     CommonModule,
     MatSelectModule,
     ReactiveFormsModule,
     RouterModule
   ]
 })
-export class ListaPersonajesComponent {
+export class ListaPersonajesComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  @Input() favoriteCharacter: any = null;
-  @Output() favoriteSelected = new EventEmitter<any>();
-  @Output() characterSelected = new EventEmitter<any>();
+  @Input() favoriteCharacter: Character | null = null;
+  @Output() favoriteSelected = new EventEmitter<Character>();
+  @Output() characterSelected = new EventEmitter<Character>();
 
-  displayedColumns: string[] = [
-    'name',
-    'status',
-    'species',
-    'gender',
-    'type',
-    'created',
-    'detalle',
-    'favorito',
-  ];
+  displayedColumns: string[] = ['name', 'status', 'species', 'gender', 'type', 'created', 'detalle', 'favorito'];
 
-  // ✅ Ahora `items` es un Signal reactivo
-  // ✅ Signal para manejar los personajes
+  // ✅ Estado reactivo de personajes
   items = signal<Character[]>([]);
+  dataSource = new MatTableDataSource<Character>([]);
 
-  // ✅ Filtros como FormControl
+  // ✅ Filtros reactivos
   searchName = new FormControl('');
   searchSpecies = new FormControl('');
   searchStatus = new FormControl('todo');
   searchGender = new FormControl('todo');
 
-  // ✅ Signals sincronizados con los filtros
-  searchNameSignal = signal(this.searchName.value ?? '');
-  searchSpeciesSignal = signal(this.searchSpecies.value ?? '');
-  searchStatusSignal = signal(this.searchStatus.value ?? 'todo');
-  searchGenderSignal = signal(this.searchGender.value ?? 'todo');
+  // ✅ Signals sincronizados con filtros
+  searchNameSignal = signal('');
+  searchSpeciesSignal = signal('');
+  searchStatusSignal = signal('todo');
+  searchGenderSignal = signal('todo');
+
   pageSize = signal<number>(10);
+
+  private destroy$ = new Subject<void>(); // 🔹 Para limpiar suscripciones y evitar memory leaks
 
   constructor(
     private rickAndMortyService: RickAndMortyService,
     private router: Router,
-    private favoritosService: FavoritosService
-  ) {
-    // ✅ Sincroniza los FormControls con Signals automáticamente
-    effect(() => {
-      this.searchName.valueChanges.subscribe(value => this.searchNameSignal.set(value?.trim() ?? ''));
-      this.searchSpecies.valueChanges.subscribe(value => this.searchSpeciesSignal.set(value?.trim() ?? ''));
-      this.searchStatus.valueChanges.subscribe(value => this.searchStatusSignal.set(value ?? ''));
-      this.searchGender.valueChanges.subscribe(value => this.searchGenderSignal.set(value ?? ''));
-    });
+    public favoritosService: FavoritosService
+  ) {}
 
-    // ✅ Carga automática de datos con `effect()`
-    effect(() => {
-      this.rickAndMortyService.getAllCharacters().subscribe((characters) => {
+  ngOnInit() {
+    // 🔹 Cargar personajes de la API
+    this.rickAndMortyService.getAllCharacters()
+      .pipe(takeUntil(this.destroy$)) // 🚀 Evita fugas de memoria al destruir el componente
+      .subscribe(characters => {
         this.items.set(characters);
       });
+
+    // 🔹 Sincronizar `FormControl` con Signals sin `subscribe()`
+    this.searchName.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(value => this.searchNameSignal.set(value?.trim() ?? ''));
+
+    this.searchSpecies.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(value => this.searchSpeciesSignal.set(value?.trim() ?? ''));
+
+    this.searchStatus.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => this.searchStatusSignal.set(value ?? 'todo'));
+
+    this.searchGender.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => this.searchGenderSignal.set(value ?? 'todo'));
+
+    // 🔹 Mantener `MatTableDataSource` actualizado dinámicamente
+    effect(() => {
+      this.dataSource.data = this.itemsFiltered();
     });
   }
 
-  // ✅ Filtrado automático con `computed()`
+  ngAfterViewInit() {
+    // 🔹 Conectar paginador y ordenamiento después de que el componente esté listo
+    effect(() => {
+      if (this.paginator) this.dataSource.paginator = this.paginator;
+      if (this.sort) this.dataSource.sort = this.sort;
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ✅ Filtro automático con `computed()`
   itemsFiltered = computed(() =>
     this.items().filter(character =>
       (!this.searchNameSignal() || character.name.toLowerCase().includes(this.searchNameSignal().toLowerCase())) &&
@@ -107,18 +130,6 @@ export class ListaPersonajesComponent {
     )
   );
 
-  // ✅ `MatTableDataSource` se actualiza automáticamente
-  dataSource = computed(() => {
-    const table = new MatTableDataSource(this.itemsFiltered());
-    if (this.paginator) {
-      table.paginator = this.paginator;
-    }
-    if (this.sort) {
-      table.sort = this.sort;
-    }
-    return table;
-  });
-
   // ✅ Contadores reactivos
   speciesCount = computed(() => new Set(this.itemsFiltered().map(c => c.species)).size);
   typeCount = computed(() => new Set(this.itemsFiltered().map(c => c.type)).size);
@@ -126,19 +137,23 @@ export class ListaPersonajesComponent {
   genders = computed(() => [...new Set(this.itemsFiltered().map(c => c.gender))]);
   statuses = computed(() => [...new Set(this.itemsFiltered().map(c => c.status))]);
 
-  // ✅ Método `marcarFavorito()`
+  // ✅ Marcar o desmarcar como favorito
   marcarFavorito(character: Character): void {
-    this.favoritosService.setFavorito(character);
+    if (this.esFavorito(character)) {
+     this.favoritosService.removeFavorito(character);
+    } else {
+      this.favoritosService.setFavorito(character);
+    }
     this.favoriteSelected.emit(character);
     character.isFavorite = !character.isFavorite;
   }
 
-  // ✅ Método `esFavorito()`
+  // ✅ Verificar si un personaje es favorito
   esFavorito(character: Character): boolean {
     return this.favoriteCharacter?.id === character.id;
   }
 
-  // ✅ Método `verDetalles()`
+  // ✅ Navegar a detalles del personaje
   verDetalles(character: Character): void {
     this.characterSelected.emit(character);
     this.router.navigate(['/detalles-personajes', character.id]);
