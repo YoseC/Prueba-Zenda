@@ -136,8 +136,8 @@ export class ListaPersonajesComponent {
   speciesCount = computed(() => new Set(this.itemsFiltered().map(c => c.species)).size);
   typeCount = computed(() => new Set(this.itemsFiltered().map(c => c.type)).size);
   totalCharacters = computed(() => this.itemsFiltered().length);
-  genders = computed(() => [...new Set(this.itemsFiltered().map(c => c.gender))]);
-  statuses = computed(() => [...new Set(this.itemsFiltered().map(c => c.status))]);
+  genders = computed(() => [...new Set(this.items().map(c => c.gender))]);
+  statuses = computed(() => [...new Set(this.items().map(c => c.status))]);
 
   // ✅ Método `marcarFavorito()`
   marcarFavorito(character: Character): void {
