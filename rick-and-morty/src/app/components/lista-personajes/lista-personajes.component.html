@@ -31,7 +31,7 @@
 </div>
 
 <!-- Tabla de personajes -->
-<table mat-table [dataSource]="dataSource()" matSort class="mat-elevation-z8">
+<table mat-table [dataSource]="paginatedItems()" matSort class="mat-elevation-z8">
 
   <!-- Columna: Nombre -->
   <ng-container matColumnDef="name">
@@ -104,10 +104,13 @@
 
 <!-- Paginador -->
 <mat-paginator
-  [length]="totalCharacters()"
-  [pageSize]="pagesize"
-  [pageSizeOptions]="[5, 10, 25, 50]">
+  [length]="itemsFiltered().length"
+  [pageSize]="pageSize()"
+  [pageSizeOptions]="[ 10, 20, 30, 50]"
+  (page)="onPageChange($event)"
+  showFirstLastButtons>
 </mat-paginator>
+
 
 <!-- Totales -->
 <div class="totals-container">

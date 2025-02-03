@@ -62,7 +62,8 @@ export class ListaPersonajesComponent {
   // ✅ Ahora `items` es un Signal reactivo
   // ✅ Signal para manejar los personajes
   items = signal<Character[]>([]);
-  pagesize = signal<number>(0);
+  pageIndex = signal<number>(0);  // Índice de la página actual
+  pageSize = signal<number>(10);  // Cantidad de elementos por página
 
 
   // ✅ Filtros como FormControl
@@ -109,6 +110,10 @@ export class ListaPersonajesComponent {
       (!this.searchGenderSignal() || this.searchGenderSignal() === 'todo' || character.gender === this.searchGenderSignal())
     )
   );
+  paginatedItems = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.itemsFiltered().slice(start, start + this.pageSize());
+  });
 
   // ✅ `MatTableDataSource` se actualiza automáticamente
   dataSource = computed(() => {
@@ -121,6 +126,11 @@ export class ListaPersonajesComponent {
     }
     return table;
   });
+  onPageChange(event: any) {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+  }
+
 
   // ✅ Contadores reactivos
   speciesCount = computed(() => new Set(this.itemsFiltered().map(c => c.species)).size);
