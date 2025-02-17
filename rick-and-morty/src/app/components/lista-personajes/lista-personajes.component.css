@@ -73,7 +73,7 @@ mat-card {
 .totals-card-2 mat-card-header {
   border-radius: 10px 10px 0 0; /* Bordes redondeados solo en la parte superior */
   text-align: center;
-  
+
 }
 
 .totals-card-2 mat-card-title {
