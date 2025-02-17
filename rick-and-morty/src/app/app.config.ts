@@ -13,6 +13,7 @@ import {
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { characterReducer } from './state/character.reducer';
+import { CharacterEffects } from './state/character.effects';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { HttpClientModule, provideHttpClient } from "@angular/common/http";
@@ -25,6 +26,7 @@ import { MAT_SLIDE_TOGGLE_DEFAULT_OPTIONS } from '@angular/material/slide-toggle
 import localeEsCL from '@angular/common/locales/es-CL';
 import localeEsCLExtra from '@angular/common/locales/extra/es-CL';
 import { routes } from './app-routes';
+
 
 registerLocaleData( localeEsCL, 'es-CL', localeEsCLExtra );
 export const appConfig: ApplicationConfig = {
@@ -48,7 +50,7 @@ export const appConfig: ApplicationConfig = {
 
      // ✅ Integración de Redux
      provideStore({ characterState: characterReducer }),
-     provideEffects([]), 
+     provideEffects([CharacterEffects]) ,
 
     {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {

@@ -9,11 +9,14 @@ export const characterReducer = createReducer(
     loading: true,
     error: null
   })),
-  on(loadCharactersSuccess, (state, { characters }) => ({
-    ...state,
-    loading: false,
-    characters
-  })),
+  on(loadCharactersSuccess, (state, { characters }) => {
+    console.log('✅ Datos recibidos en Redux:', characters);
+    return {
+      ...state,
+      loading: false,
+      characters
+    };
+  }),
   on(loadCharactersFailure, (state, { error }) => ({
     ...state,
     loading: false,
