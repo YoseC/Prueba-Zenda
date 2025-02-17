@@ -9,6 +9,10 @@ import {
   withRouterConfig
 } from '@angular/router';
 
+// agregamos las importaciones de ngrx
+import { provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+import { characterReducer } from './state/character.reducer';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { HttpClientModule, provideHttpClient } from "@angular/common/http";
@@ -41,6 +45,10 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideHttpClient(),
     importProvidersFrom( HttpClientModule ),
+
+     // ✅ Integración de Redux
+     provideStore({ characterState: characterReducer }),
+     provideEffects([]), 
 
     {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {
