@@ -20,7 +20,7 @@ export class CharacterEffects {
         this.rickAndMortyService.getAllCharacters().pipe(
           tap(() => console.log('🌍 Llamando a la API de Rick and Morty')),
           map(characters => {
-            console.log('✅ Efecto ejecutado - Datos cargados en Redux:', characters);
+            // console.log('✅ Efecto ejecutado - Datos cargados en Redux:', characters);
             return loadCharactersSuccess({ characters });
           }),
           catchError(error => {
