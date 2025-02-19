@@ -1,26 +1,24 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
 import { RickAndMortyService } from '../services/rick-and-morty.service';
 import { loadCharacters, loadCharactersSuccess, loadCharactersFailure } from './character.actions';
-import { catchError, map, mergeMap, of, tap } from 'rxjs';
+import { catchError, map, mergeMap, of } from 'rxjs';
 
 @Injectable()
 export class CharacterEffects {
+  private readonly actions$ = inject(Actions); // ✅ Usar `inject()` en Angular 16+
+  private readonly store = inject(Store); // ✅ Usar `inject()` para el Store
+  private readonly rickAndMortyService = inject(RickAndMortyService); // ✅ Inyección directa
 
-    private actions$ = inject(Actions);  // ✅ Usamos `inject()` en lugar del constructor
-    private rickAndMortyService = inject(RickAndMortyService);  // ✅ También para el servicio
-
-
+  constructor() {}
 
   loadCharacters$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadCharacters),
-      tap(() => console.log('⚡ Acción loadCharacters detectada en Effects')),
       mergeMap(() =>
         this.rickAndMortyService.getAllCharacters().pipe(
-          tap(() => console.log('🌍 Llamando a la API de Rick and Morty')),
           map(characters => {
-            // console.log('✅ Efecto ejecutado - Datos cargados en Redux:', characters);
             return loadCharactersSuccess({ characters });
           }),
           catchError(error => {
@@ -32,14 +30,3 @@ export class CharacterEffects {
     )
   );
 }
-
-
-
-// 1️⃣ Elimina la inyección en el constructor y usa inject(Actions) en su lugar.
-
-// Angular 19 introduce un nuevo sistema de inyección basado en inject().
-// A veces, los servicios inyectados en el constructor no se instancian correctamente.
-// inject(Actions) se asegura de que Actions siempre esté disponible.
-// 2️⃣ Aplica inject(RickAndMortyService) en lugar de pasarlo en el constructor.
-
-// Esto sigue el mismo principio: evita problemas de inyección en Angular 19.

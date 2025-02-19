@@ -27,6 +27,10 @@ import localeEsCL from '@angular/common/locales/es-CL';
 import localeEsCLExtra from '@angular/common/locales/extra/es-CL';
 import { routes } from './app-routes';
 
+// importamos Apollo Client para GraphQL
+import { APOLLO_OPTIONS } from 'apollo-angular';
+import { ApolloClient, InMemoryCache } from '@apollo/client/core';
+
 
 registerLocaleData( localeEsCL, 'es-CL', localeEsCLExtra );
 export const appConfig: ApplicationConfig = {
@@ -51,6 +55,23 @@ export const appConfig: ApplicationConfig = {
      // ✅ Integración de Redux
      provideStore({ characterState: characterReducer }),
      provideEffects([CharacterEffects]) ,
+
+    // ✅ Integración de Apollo Client
+    {
+      provide: APOLLO_OPTIONS,
+      useFactory: () => {
+        return new ApolloClient({
+          uri: 'https://rickandmortyapi.com/graphql', // 🔹 API de GraphQL
+          cache: new InMemoryCache(), // 🔹 Cache en memoria para mejorar rendimiento
+          defaultOptions: {
+            query: {
+              fetchPolicy: 'cache-first', // 🔹 Reduce llamadas innecesarias a la API
+              errorPolicy: 'all'
+            },
+          },
+        });
+      },
+    },
 
     {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {
