@@ -18,6 +18,8 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Character } from '../../interfaces/character.interface';
 import { loadCharacters } from '../../state/character.actions';
 import { selectAllCharacters } from '../../state/character.selectors'; // ✅ Corrige el import
+import { ChangeDetectorRef } from '@angular/core';
+
 
 
 
@@ -78,7 +80,8 @@ export class ListaPersonajesComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private favoritosService: FavoritosService
+    private favoritosService: FavoritosService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -110,15 +113,18 @@ export class ListaPersonajesComponent implements OnInit {
   searchStatusSignal = signal(this.searchStatus.value ?? 'todo');
   searchGenderSignal = signal(this.searchGender.value ?? 'todo');
 
-  // ✅ Filtrado automático con `computed()`
-  itemsFiltered = computed(() =>
-    this.dataSource.data.filter(character =>
+  // ✅ Computed que actualiza directamente el dataSource
+  itemsFiltered = computed(() => {
+    const filteredItems = this.dataSource.data.filter(character =>
       (!this.searchNameSignal() || character.name.toLowerCase().includes(this.searchNameSignal().toLowerCase())) &&
       (!this.searchSpeciesSignal() || character.species.toLowerCase().includes(this.searchSpeciesSignal().toLowerCase())) &&
       (!this.searchStatusSignal() || this.searchStatusSignal() === 'todo' || character.status === this.searchStatusSignal()) &&
       (!this.searchGenderSignal() || this.searchGenderSignal() === 'todo' || character.gender === this.searchGenderSignal())
-    )
-  );
+    );
+
+    this.dataSource.data = filteredItems;
+    return filteredItems;
+  });
 
   // ✅ Contadores
   speciesCount = computed(() => new Set(this.itemsFiltered().map(c => c.species)).size);
