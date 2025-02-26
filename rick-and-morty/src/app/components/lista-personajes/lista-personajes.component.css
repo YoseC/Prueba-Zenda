@@ -3,7 +3,7 @@ table {
   margin: 0;
   padding: 0;
   opacity: 0.9; /* Ajusta el valor de opacidad según tus necesidades */
-  background-color: #6699CC; /* Fondo blanco semitransparente */
+  background-color: #e4dcc9; /* Pinta las lineas */
   backdrop-filter: blur(1px);
   border-collapse: collapse; /* Elimina espacios entre bordes */
   border: none; /* Elimina el borde de la tabla */
@@ -24,13 +24,13 @@ th {
   font-size: 25px;
   font-weight: bold;
   text-align: center;
-  background-color: #8f476e !important;
+  background-color: #a17590 !important;
 }
 
 
 
 td {
-  background-color: #6699CC; /* Fondo semitransparente para las celdas */
+  background-color: #848cd1; /* Fondo semitransparente para las celdas */
   color: #ffffff; /* Color del texto de las celdas */
   font-weight: bold;
   font-size: 18px;

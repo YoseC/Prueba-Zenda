@@ -5,7 +5,7 @@ mat-toolbar {
   justify-content: space-evenly;
   padding: 0 20px;
   border-radius: 8px;
-  background-color: #6f79cc;
+  background-color: #4a39ad;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Añade sombra al header */
 }
 
