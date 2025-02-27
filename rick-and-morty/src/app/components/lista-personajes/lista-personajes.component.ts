@@ -17,17 +17,15 @@ import { Store } from '@ngrx/store';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Character } from '../../interfaces/character.interface';
 import { loadCharacters } from '../../state/character.actions';
-import { selectAllCharacters } from '../../state/character.selectors'; // ✅ Corrige el import
+import { selectAllCharacters } from '../../state/character.selectors';
 import { ChangeDetectorRef } from '@angular/core';
 
 
 
-
-
-@Component({
-  selector: 'lista-personajes',
-  templateUrl: './lista-personajes.component.html',
-  styleUrls: ['./lista-personajes.component.css'],
+  @Component({
+    selector: 'lista-personajes',
+    templateUrl: './lista-personajes.component.html',
+    styleUrls: ['./lista-personajes.component.css'],
   imports: [
     MatFormFieldModule,
     MatTableModule,
@@ -57,19 +55,11 @@ export class ListaPersonajesComponent implements OnInit {
   @Output() characterSelected = new EventEmitter<any>();
 
   displayedColumns: string[] = [
-    'name',
-    'status',
-    'species',
-    'gender',
-    'type',
-    'created',
-    'detalle',
-    'favorito',
+    'name', 'status', 'species', 'gender', 'type', 'created', 'detalle', 'favorito'
   ];
 
-  // ✅ Obtenemos los datos desde Redux
   private store = inject(Store);
-  characters$: Observable<Character[]> = this.store.select(selectAllCharacters);
+  characters: Character[] = [];
   dataSource = new MatTableDataSource<Character>();
 
   // ✅ Filtros
@@ -77,6 +67,13 @@ export class ListaPersonajesComponent implements OnInit {
   searchSpecies = new FormControl('');
   searchStatus = new FormControl('todo');
   searchGender = new FormControl('todo');
+
+  // ✅ Contadores reactivos
+  speciesCount = signal(0);
+  typeCount = signal(0);
+  totalCharacters = signal(0);
+  genders = signal<string[]>([]);
+  statuses = signal<string[]>([]);
 
   constructor(
     private router: Router,
@@ -87,65 +84,93 @@ export class ListaPersonajesComponent implements OnInit {
   ngOnInit(): void {
     this.store.dispatch(loadCharacters());
 
-    // ✅ Suscribimos Redux a MatTableDataSource
-    this.characters$.subscribe(characters => {
-      // console.log('✅ Datos recibidos en Redux ):', characters);
+    // ✅ Obtener personajes de Redux
+    this.store.select(selectAllCharacters).subscribe((characters) => {
+      this.characters = characters;
       this.dataSource.data = characters;
-      setTimeout(() => {
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      });
+      this.inicializarPaginador();
+      this.actualizarContadores(); // 🔥 Actualizar contadores cuando se cargan los datos
     });
 
+    // ✅ Configurar `filterPredicate`
+    this.dataSource.filterPredicate = (data: Character, filter: string) => {
+      const search = JSON.parse(filter);
+      return (
+        (!search.name || data.name.toLowerCase().includes(search.name.toLowerCase())) &&
+        (!search.species || data.species.toLowerCase().includes(search.species.toLowerCase())) &&
+        (search.status === 'todo' || data.status === search.status) &&
+        (search.gender === 'todo' || data.gender === search.gender)
+      );
+    };
+
+    // ✅ Aplicar filtros cuando los valores cambian
+    this.searchName.valueChanges.subscribe(() => this.aplicarFiltros());
+    this.searchSpecies.valueChanges.subscribe(() => this.aplicarFiltros());
+    this.searchStatus.valueChanges.subscribe(() => this.aplicarFiltros());
+    this.searchGender.valueChanges.subscribe(() => this.aplicarFiltros());
   }
 
-  // ✅ Mueve `effect()` fuera de `ngOnInit()` y conviértelo en una propiedad de la clase
-  effectFilterSync = effect(() => {
-    this.searchName.valueChanges.subscribe(value => this.searchNameSignal.set(value?.trim() ?? ''));
-    this.searchSpecies.valueChanges.subscribe(value => this.searchSpeciesSignal.set(value?.trim() ?? ''));
-    this.searchStatus.valueChanges.subscribe(value => this.searchStatusSignal.set(value ?? ''));
-    this.searchGender.valueChanges.subscribe(value => this.searchGenderSignal.set(value ?? ''));
-  });
+  private inicializarPaginador(): void {
+    setTimeout(() => {
+      if (this.paginator) {
+        this.dataSource.paginator = this.paginator;
+        this.paginator.firstPage();
+      }
+      if (this.sort) {
+        this.dataSource.sort = this.sort;
+      }
+    });
+  }
 
-  // ✅ Signals sincronizados con los filtros
-  searchNameSignal = signal(this.searchName.value ?? '');
-  searchSpeciesSignal = signal(this.searchSpecies.value ?? '');
-  searchStatusSignal = signal(this.searchStatus.value ?? 'todo');
-  searchGenderSignal = signal(this.searchGender.value ?? 'todo');
+  // ✅ Método para aplicar los filtros y actualizar contadores
+  private aplicarFiltros(): void {
+    const filterValues = {
+      name: this.searchName.value?.trim().toLowerCase() || '',
+      species: this.searchSpecies.value?.trim().toLowerCase() || '',
+      status: this.searchStatus.value || 'todo',
+      gender: this.searchGender.value || 'todo',
+    };
 
-  // ✅ Computed que actualiza directamente el dataSource
-  itemsFiltered = computed(() => {
-    const filteredItems = this.dataSource.data.filter(character =>
-      (!this.searchNameSignal() || character.name.toLowerCase().includes(this.searchNameSignal().toLowerCase())) &&
-      (!this.searchSpeciesSignal() || character.species.toLowerCase().includes(this.searchSpeciesSignal().toLowerCase())) &&
-      (!this.searchStatusSignal() || this.searchStatusSignal() === 'todo' || character.status === this.searchStatusSignal()) &&
-      (!this.searchGenderSignal() || this.searchGenderSignal() === 'todo' || character.gender === this.searchGenderSignal())
-    );
+    this.dataSource.filter = JSON.stringify(filterValues);
 
-    this.dataSource.data = filteredItems;
-    return filteredItems;
-  });
+    // ✅ Reiniciar paginador al filtrar
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
 
-  // ✅ Contadores
-  speciesCount = computed(() => new Set(this.itemsFiltered().map(c => c.species)).size);
-  typeCount = computed(() => new Set(this.itemsFiltered().map(c => c.type)).size);
-  totalCharacters = computed(() => this.itemsFiltered().length);
-  genders = computed(() => [...new Set(this.dataSource.data.map(c => c.gender))]);
-  statuses = computed(() => [...new Set(this.dataSource.data.map(c => c.status))]);
+    // ✅ Actualizar contadores después de aplicar filtros
+    setTimeout(() => {
+      this.actualizarContadores();
+    });
+  }
+
+  private actualizarContadores(): void {
+    const filteredData = this.dataSource.filteredData;
+
+    // 🔥 Forzar detección de cambios
+    this.speciesCount.set(new Set(filteredData.map(c => c.species)).size);
+    this.typeCount.set(new Set(filteredData.map(c => c.type)).size);
+    this.totalCharacters.set(filteredData.length);
+    this.genders.set([...new Set(filteredData.map(c => c.gender))]);
+    this.statuses.set([...new Set(filteredData.map(c => c.status))]);
+
+    this.cdr.detectChanges(); // 🔥 Asegurar actualización en la vista
+  }
 
   // ✅ Método `marcarFavorito()`
   marcarFavorito(character: Character): void {
     this.favoritosService.setFavorito(character);
     this.favoriteSelected.emit(character);
-    // character.isFavorite = !character.isFavorite; da error en consola porque es una propiedad de solo lectura o sea inmutable
- // ✅ Clona el objeto para evitar modificar directamente el estado de Redux
- const updatedCharacter = { ...character, isFavorite: !character.isFavorite };
 
- // ✅ Reemplaza el objeto en el dataSource
- this.dataSource.data = this.dataSource.data.map(c =>
-   c.id === updatedCharacter.id ? updatedCharacter : c
- );
+    // ✅ Clona el objeto para evitar modificar directamente el estado de Redux
+    const updatedCharacter = { ...character, isFavorite: !character.isFavorite };
 
+    // ✅ Reemplaza el objeto en el dataSource
+    this.dataSource.data = this.dataSource.data.map(c =>
+      c.id === updatedCharacter.id ? updatedCharacter : c
+    );
+
+    this.actualizarContadores(); // 🔥 Asegurar que los contadores también se actualicen
   }
 
   // ✅ Método `esFavorito()`
