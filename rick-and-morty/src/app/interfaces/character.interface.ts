@@ -8,7 +8,7 @@ export interface Character {
   origin: { name: string; url: string };
   location: { name: string; url: string };
   image: string;
-  episode: string[]; // Lista de episodios en los que aparece
+  episode?: string[]; // Lista de episodios en los que aparece
   created: string; // Fecha en formato ISO
   isFavorite?: boolean; // Propiedad para favoritos
 }

@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom } from '@angular/core';
 import {
   PreloadAllModules,
   provideRouter,
@@ -16,10 +16,10 @@ import { characterReducer } from './state/character.reducer';
 import { CharacterEffects } from './state/character.effects';
 
 // HTTP y Apollo GraphQL
-import { provideHttpClient } from "@angular/common/http";
-import { provideApollo, APOLLO_OPTIONS } from 'apollo-angular';
+import { provideHttpClient, withInterceptors } from "@angular/common/http";
+import { Apollo, APOLLO_OPTIONS } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
-import { InMemoryCache, ApolloClientOptions, NormalizedCacheObject } from '@apollo/client/core';
+import { InMemoryCache } from '@apollo/client/core';
 
 // Rutas de la aplicación
 import { routes } from './app-routes';
@@ -59,14 +59,19 @@ export const appConfig: ApplicationConfig = {
     provideStore({ characterState: characterReducer }),
     provideEffects([CharacterEffects]),
 
-    // ✅ Configuración correcta de Apollo Angular
+    // ✅ SOLUCIÓN: Configuración correcta de Apollo Angular
+    Apollo, // Importante: Proporcionar Apollo como proveedor directo: Es necesario proporcionar explícitamente el servicio Apollo.
     {
       provide: APOLLO_OPTIONS,
-      useFactory: (httpLink: HttpLink): ApolloClientOptions<NormalizedCacheObject> => ({
-        cache: new InMemoryCache(),
-        link: httpLink.create({ uri: 'https://rickandmortyapi.com/graphql' }), // ✅ URL de la API GraphQL
-      }),
-      deps: [HttpLink]
+      useFactory: (httpLink: HttpLink) => {
+        return {
+          cache: new InMemoryCache(),
+          link: httpLink.create({
+            uri: 'https://rickandmortyapi.com/graphql',
+          }),
+        };
+      },
+      deps: [HttpLink],
     },
 
     // 🎨 Configuración de Angular Material
