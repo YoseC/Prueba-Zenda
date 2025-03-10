@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { RickAndMortyGraphqlService } from '../services/rick-and-morty-graphql.service';
 import { loadCharacters, loadCharactersSuccess, loadCharactersFailure } from './character.actions';
-import { catchError, map, mergeMap, of } from 'rxjs';
+import { catchError, map, mergeMap, of, take } from 'rxjs';
 
 
 @Injectable()
@@ -17,6 +17,7 @@ export class CharacterEffects {
   loadCharacters$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadCharacters),
+      take(1), // ✅ Usar `take(1)` para evitar llamadas infinitas
       mergeMap(() =>
         this.rickAndMortyGraphqlService.getAllCharacters().pipe(
           map(characters => {
